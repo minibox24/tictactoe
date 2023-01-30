@@ -1,7 +1,7 @@
 ﻿using System.Net.WebSockets;
 using Newtonsoft.Json;
 using Tictactoe.Utils;
-using static Tictactoe.Game.MessageClasses;
+using static Tictactoe.Game.JsonClasses;
 
 namespace Tictactoe.Game;
 
@@ -103,7 +103,7 @@ public class GameSession
         await GameManager.CreateNewGameIfAvailable();
     }
 
-    private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Tictactoe.Game.Game game)
+    private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Game game)
     {
         if (session.SessionId != _session.SessionId)
         {

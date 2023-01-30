@@ -6,7 +6,8 @@ public class GameManager
 
     public static readonly List<Game> Games = new();
 
-    public static event Func<Session, string, bool, Game, Task> OnStartEventReceived;
+    public static event Func<Session, string, bool, Game, Task> OnStartEventReceived =
+        (_, _, _, _) => Task.CompletedTask;
 
     public static void Enqueue(Session session)
     {
@@ -49,8 +50,8 @@ public class Game
 
     public int[][] Map { init; get; }
 
-    public static event Func<Session, string, Task> OnEndEventReceived;
-    public static event Func<Session, int, Task> OnPlayEventReceived;
+    public static event Func<Session, string, Task> OnEndEventReceived = (_, _) => Task.CompletedTask;
+    public static event Func<Session, int, Task> OnPlayEventReceived = (_, _) => Task.CompletedTask;
 
     public Game(List<Session> players)
     {
