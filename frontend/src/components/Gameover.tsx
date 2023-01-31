@@ -14,9 +14,9 @@ const Gameover: FC<GameoverProps> = ({ session, reGame }) => {
   if (!session.endType) return null;
 
   const text = {
-    [EndTypes.WIN]: "게임을 승리했습니다!",
-    [EndTypes.LOSE]: "게임을 패배했습니다!",
-    [EndTypes.DRAW]: "무승부입니다!",
+    [EndTypes.WIN]: "승리했습니다!",
+    [EndTypes.LOSE]: "패배했습니다!",
+    [EndTypes.DRAW]: "비겼습니다!",
     [EndTypes.LEAVE]: "상대방이 게임에서 탈주했습니다!",
   }[session.endType];
 
@@ -59,6 +59,8 @@ const Modal = styled(motion.div)`
   padding: 2rem;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
+
+  text-align: center;
 `;
 
 const Text = styled.span`

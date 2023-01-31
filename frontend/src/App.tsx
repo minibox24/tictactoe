@@ -197,7 +197,7 @@ const App: FC<AppProps> = () => {
 
   return (
     <Container>
-      <TestControler>
+      {/* <TestControler>
         <TCRow>
           Controls start:{" "}
           <button
@@ -293,7 +293,7 @@ const App: FC<AppProps> = () => {
             Playing
           </button>
         </TCRow>
-      </TestControler>
+      </TestControler> */}
 
       {status === Status.Playing && gameSession && (
         <VSText player1={nick} player2={gameSession.vs} />

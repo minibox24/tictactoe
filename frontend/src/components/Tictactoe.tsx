@@ -118,6 +118,10 @@ const TTTElement = styled.div`
   justify-content: center;
   font-weight: bold;
   font-size: 100px;
+
+  @media screen and (max-width: 400px) {
+    font-size: 70px;
+  }
 `;
 
 export default Tictactoe;
