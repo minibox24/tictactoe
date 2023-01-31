@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { FC, useState } from "react";
 import Ine from "./components/Ine";
 import MainPage from "./components/MainPage";
+import MyturnText from "./components/MyturnText";
 import QueueingPage from "./components/QueueingPage";
 import VSText from "./components/VSText";
 
@@ -17,7 +18,7 @@ enum Status {
 
 const App: FC<AppProps> = () => {
   const controls = useAnimation();
-  const [status, setStatus] = useState<Status>(Status.Playing);
+  const [status, setStatus] = useState<Status>(Status.Lobby);
 
   return (
     <Container>
@@ -27,20 +28,38 @@ const App: FC<AppProps> = () => {
             controls.start("change");
           }}
         >
-          Start
+          Change
         </button>
         <button
           onClick={() => {
-            controls.set("default");
+            controls.start("default");
           }}
         >
-          Rollback
+          Default
+        </button>
+        <button
+          onClick={() => {
+            controls.start("hidden");
+          }}
+        >
+          Hidden
+        </button>
+        <button
+          onClick={() => {
+            controls.start("show");
+          }}
+        >
+          Show
         </button>
       </TestControler>
 
-      <VSText player1="두둥실떠오르는히키코모리" player2="악질민수" />
+      {status === Status.Playing && (
+        <VSText player1="플레이어1" player2="플레이어2" />
+      )}
 
       <Ine controls={controls} />
+
+      <MyturnText controls={controls} />
 
       {status === Status.Lobby && (
         <MainPage
