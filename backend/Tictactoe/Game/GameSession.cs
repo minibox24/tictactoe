@@ -144,7 +144,7 @@ public class GameSession
         _game.CheckEnd();
     }
 
-    private async Task OnOnPlayEventReceived(Session session, int index)
+    private async Task OnOnPlayEventReceived(Session session, int index, int[] board)
     {
         if (session.SessionId != _session.SessionId)
         {
@@ -152,7 +152,7 @@ public class GameSession
         }
 
         await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new PlayMessage
-            { index = index }));
+            { index = index, board = board }));
     }
 
     private async Task OnEndEventReceived(Session session, string endType)
