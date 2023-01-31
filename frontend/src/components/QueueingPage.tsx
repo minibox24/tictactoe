@@ -39,6 +39,7 @@ const QueueingPage: FC<QueueingPageProps> = ({ onCanceled }) => {
       <Footer>
         <FooterText>&#8203;</FooterText>
         <FooterText>&#8203;</FooterText>
+        <FooterText>&#8203;</FooterText>
       </Footer>
     </Container>
   );

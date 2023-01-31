@@ -4,6 +4,9 @@ export enum MessageTypes {
   PLAY = "PLAY",
   END = "END",
   ERROR = "ERROR",
+}
+
+export enum ClientMessageTypes {
   QUEUE = "QUEUE",
   PUT = "PUT",
 }
@@ -22,4 +25,9 @@ export enum ErrorTypes {
   ALREADY_QUEUED = "ALREADY_QUEUED",
   ALREADY_CHECKED = "ALREADY_CHECKED",
   UNKNOWN = "UNKNOWN",
+}
+
+export enum Avatars {
+  INE,
+  WAKPAGO,
 }

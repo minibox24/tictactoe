@@ -1,19 +1,22 @@
 import { motion } from "framer-motion";
 import { FC } from "react";
 import styled from "styled-components";
+import { Status } from "../types/responses";
 
-interface MainPageProps {
+interface LobbyPageProps {
   onQueued: () => void;
+  status: Status | null;
+  nick: string;
 }
 
-const MainPage: FC<MainPageProps> = ({ onQueued }) => {
+const LobbyPage: FC<LobbyPageProps> = ({ onQueued, status, nick }) => {
   return (
     <Container>
       <Background />
 
       <Center>
         <Title>틱택토</Title>
-        <Playing>345명이 플레이 중</Playing>
+        <Text>닉네임: {nick}</Text>
         <PlayButton
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -24,7 +27,10 @@ const MainPage: FC<MainPageProps> = ({ onQueued }) => {
       </Center>
 
       <Footer>
-        <FooterText>1234회 플레이 됨</FooterText>
+        <FooterText>
+          지금 {status ? status.now * 2 : 0}명이 플레이 중
+        </FooterText>
+        <FooterText>총 {status ? status.total : 0}회 플레이 됨</FooterText>
         <FooterText>메일단은 여기로: minibox724@gmail.com</FooterText>
       </Footer>
     </Container>
@@ -77,7 +83,7 @@ const Title = styled.h1`
   text-shadow: 0 0 10px black;
 `;
 
-const Playing = styled.span``;
+const Text = styled.span``;
 
 const PlayButton = styled(motion.div)`
   margin-top: 2rem;
@@ -103,4 +109,4 @@ const FooterText = styled.p`
   margin: 0;
 `;
 
-export default MainPage;
+export default LobbyPage;
