@@ -68,7 +68,7 @@ public class GameSession
 
     private async Task HandleEvent(CoreMessage data, string rawStr)
     {
-        switch (data.type.Trim())
+        switch (data.type!.Trim())
         {
             case "QUEUE":
                 await AddQueue();
