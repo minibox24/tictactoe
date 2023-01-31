@@ -2,6 +2,7 @@ import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
 import Ine from "./components/Ine";
+import MainPage from "./components/MainPage";
 
 function App() {
   const controls = useAnimation();
@@ -26,12 +27,8 @@ function App() {
       </TestControler>
 
       <Ine controls={controls} />
-      {/* <Tictactoe controls={controls} /> */}
 
-      {/* <Main>
-        <Background />
-        <Title>틱택토</Title>
-      </Main> */}
+      <MainPage />
     </Container>
   );
 }
