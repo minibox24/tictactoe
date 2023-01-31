@@ -20,6 +20,7 @@ import {
   PutMessage,
   QueueMessage,
   StartMessage,
+  UnqueueMessage,
 } from "./types/messages";
 import { Status as StatusResponse } from "./types/responses";
 
@@ -140,6 +141,15 @@ const App: FC<AppProps> = () => {
 
     sendMessage(JSON.stringify(payload));
     controls.start("hidden");
+  };
+
+  const onCanceled = () => {
+    const payload: UnqueueMessage = {
+      type: ClientMessageTypes.UNQUEUE,
+    };
+
+    sendMessage(JSON.stringify(payload));
+    setStatus(Status.Lobby);
   };
 
   const getAvatar = () => {
@@ -273,13 +283,7 @@ const App: FC<AppProps> = () => {
         <LobbyPage nick={nick} status={statusInfo} onQueued={onQueued} />
       )}
 
-      {status === Status.Queueing && (
-        <QueueingPage
-          onCanceled={() => {
-            setStatus(Status.Lobby);
-          }}
-        />
-      )}
+      {status === Status.Queueing && <QueueingPage onCanceled={onCanceled} />}
     </Container>
   );
 };

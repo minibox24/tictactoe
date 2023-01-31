@@ -8,6 +8,7 @@ export enum MessageTypes {
 
 export enum ClientMessageTypes {
   QUEUE = "QUEUE",
+  UNQUEUE = "UNQUEUE",
   PUT = "PUT",
 }
 
@@ -24,6 +25,8 @@ export enum ErrorTypes {
   ALREADY_PLAYING = "ALREADY_PLAYING",
   ALREADY_QUEUED = "ALREADY_QUEUED",
   ALREADY_CHECKED = "ALREADY_CHECKED",
+  INCORRECT_FORMAT = "INCORRECT_FORMAT",
+  NOT_IN_QUEUE = "NOT_IN_QUEUE",
   UNKNOWN = "UNKNOWN",
 }
 

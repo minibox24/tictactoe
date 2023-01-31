@@ -36,6 +36,10 @@ export interface QueueMessage {
   type: ClientMessageTypes.QUEUE;
 }
 
+export interface UnqueueMessage {
+  type: ClientMessageTypes.UNQUEUE;
+}
+
 export interface PutMessage {
   type: ClientMessageTypes.PUT;
   index: number;
