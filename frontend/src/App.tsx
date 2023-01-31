@@ -1,11 +1,22 @@
 import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
+import { FC, useState } from "react";
 import Ine from "./components/Ine";
 import MainPage from "./components/MainPage";
+import QueueingPage from "./components/QueueingPage";
 
-function App() {
+interface AppProps {}
+
+enum Status {
+  Lobby,
+  Queueing,
+  Playing,
+}
+
+const App: FC<AppProps> = () => {
   const controls = useAnimation();
+  const [status, setStatus] = useState<Status>(Status.Lobby);
 
   return (
     <Container>
@@ -28,10 +39,24 @@ function App() {
 
       <Ine controls={controls} />
 
-      <MainPage />
+      {status === Status.Lobby && (
+        <MainPage
+          onQueued={() => {
+            setStatus(Status.Queueing);
+          }}
+        />
+      )}
+
+      {status === Status.Queueing && (
+        <QueueingPage
+          onCanceled={() => {
+            setStatus(Status.Lobby);
+          }}
+        />
+      )}
     </Container>
   );
-}
+};
 
 const TestControler = styled.div`
   position: fixed;

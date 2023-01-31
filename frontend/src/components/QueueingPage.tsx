@@ -1,31 +1,44 @@
 import { motion } from "framer-motion";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
 
-interface MainPageProps {
-  onQueued: () => void;
+interface QueueingPageProps {
+  onCanceled: () => void;
 }
 
-const MainPage: FC<MainPageProps> = ({ onQueued }) => {
+const QueueingPage: FC<QueueingPageProps> = ({ onCanceled }) => {
+  const [dots, setDots] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((dots) => (dots + 1) % 4);
+    }, 400);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <Container>
       <Background />
 
       <Center>
         <Title>틱택토</Title>
-        <Playing>345명이 플레이 중</Playing>
-        <PlayButton
+        <Status>게임을 찾는 중{".".repeat(dots)}</Status>
+        <CancelButton
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          onClick={onQueued}
+          onClick={onCanceled}
         >
-          플레이하기
-        </PlayButton>
+          취소
+        </CancelButton>
       </Center>
 
+      {/* Dummy */}
       <Footer>
-        <FooterText>1234회 플레이 됨</FooterText>
-        <FooterText>메일단은 여기로: minibox724@gmail.com</FooterText>
+        <FooterText>&#8203;</FooterText>
+        <FooterText>&#8203;</FooterText>
       </Footer>
     </Container>
   );
@@ -77,13 +90,13 @@ const Title = styled.h1`
   text-shadow: 0 0 10px black;
 `;
 
-const Playing = styled.span``;
+const Status = styled.span``;
 
-const PlayButton = styled(motion.div)`
+const CancelButton = styled(motion.div)`
   margin-top: 2rem;
 
-  background: white;
-  color: black;
+  background: #d83c3e;
+  color: white;
 
   font-size: 1.5rem;
   font-weight: 700;
@@ -103,4 +116,4 @@ const FooterText = styled.p`
   margin: 0;
 `;
 
-export default MainPage;
+export default QueueingPage;
