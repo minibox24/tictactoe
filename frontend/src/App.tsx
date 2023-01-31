@@ -2,6 +2,7 @@ import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
 import { FC, useState } from "react";
+import ConnectingPage from "./components/ConnectingPage";
 import Ine from "./components/Ine";
 import MainPage from "./components/MainPage";
 import MyturnText from "./components/MyturnText";
@@ -11,6 +12,7 @@ import VSText from "./components/VSText";
 interface AppProps {}
 
 enum Status {
+  Connecting,
   Lobby,
   Queueing,
   Playing,
@@ -18,7 +20,7 @@ enum Status {
 
 const App: FC<AppProps> = () => {
   const controls = useAnimation();
-  const [status, setStatus] = useState<Status>(Status.Lobby);
+  const [status, setStatus] = useState<Status>(Status.Connecting);
 
   return (
     <Container>
@@ -91,6 +93,13 @@ const App: FC<AppProps> = () => {
           Status set:{" "}
           <button
             onClick={() => {
+              setStatus(Status.Connecting);
+            }}
+          >
+            Connecting
+          </button>
+          <button
+            onClick={() => {
               setStatus(Status.Lobby);
             }}
           >
@@ -120,6 +129,8 @@ const App: FC<AppProps> = () => {
       <Ine controls={controls} />
 
       <MyturnText controls={controls} />
+
+      {status === Status.Connecting && <ConnectingPage failed={true} />}
 
       {status === Status.Lobby && (
         <MainPage
