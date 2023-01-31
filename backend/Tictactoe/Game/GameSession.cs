@@ -54,7 +54,7 @@ public class GameSession
                 return;
             }
 
-            await HandleEvent(data, str);
+            await HandleEvent(data!, str);
 
             (str, receiveResult) = await WebSocket.ReceiveStringAsync();
         }
@@ -95,7 +95,7 @@ public class GameSession
                     return;
                 }
 
-                await Put(putData);
+                await Put(putData!);
 
                 break;
             default:
@@ -205,9 +205,9 @@ public class GameSession
             { error = errorMessage }));
     }
 
-    private bool TryDeserializeJsonObject<T>(string str, out T obj)
+    private bool TryDeserializeJsonObject<T>(string str, out T? obj)
     {
-        obj = default(T);
+        obj = default;
 
         try
         {
