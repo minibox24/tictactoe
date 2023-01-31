@@ -47,8 +47,14 @@ public class GameSession
 
         while (!receiveResult.CloseStatus.HasValue)
         {
-            var data = JsonConvert.DeserializeObject<CoreMessage>(str)!;
-            await HandleEvent(data, str);
+            if (!TryDeserializeJsonObject<CoreMessage>(str, out var data))
+            {
+                await SendError("UNKNOWN");
+
+                return;
+            }
+
+            await HandleEvent(data!, str);
 
             (str, receiveResult) = await WebSocket.ReceiveStringAsync();
         }
@@ -68,14 +74,32 @@ public class GameSession
 
     private async Task HandleEvent(CoreMessage data, string rawStr)
     {
-        switch (data.type!.Trim())
+        if (data.type is null)
+        {
+            await SendError("UNKNOWN");
+
+            return;
+        }
+
+        switch (data.type.Trim())
         {
             case "QUEUE":
                 await AddQueue();
 
                 break;
             case "PUT":
-                await Put(JsonConvert.DeserializeObject<PutMessage>(rawStr)!);
+                if (!TryDeserializeJsonObject<PutMessage>(rawStr, out var putData))
+                {
+                    await SendError("UNKNOWN");
+
+                    return;
+                }
+
+                await Put(putData!);
+
+                break;
+            default:
+                await SendError("UNKNOWN");
 
                 break;
         }
@@ -134,6 +158,13 @@ public class GameSession
             return;
         }
 
+        if (msg.index is > 8 or < 0)
+        {
+            await SendError("UNKNOWN");
+
+            return;
+        }
+
         if (!await _game!.Put(_session, msg.index))
         {
             await SendError("ALREADY_CHECKED");
@@ -144,7 +175,7 @@ public class GameSession
         _game.CheckEnd();
     }
 
-    private async Task OnOnPlayEventReceived(Session session, int index)
+    private async Task OnOnPlayEventReceived(Session session, int index, int[] board)
     {
         if (session.SessionId != _session.SessionId)
         {
@@ -152,7 +183,7 @@ public class GameSession
         }
 
         await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new PlayMessage
-            { index = index }));
+            { index = index, board = board }));
     }
 
     private async Task OnEndEventReceived(Session session, string endType)
@@ -172,5 +203,21 @@ public class GameSession
     {
         await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new ErrorMessage
             { error = errorMessage }));
+    }
+
+    private static bool TryDeserializeJsonObject<T>(string str, out T? obj)
+    {
+        obj = default;
+
+        try
+        {
+            obj = JsonConvert.DeserializeObject<T>(str)!;
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
