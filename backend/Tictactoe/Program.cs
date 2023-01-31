@@ -14,15 +14,15 @@ builder.Services.AddCors(options =>
             policyBuilder
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
+                .AllowAnyHeader();
         });
 });
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
+
+app.UseCors("AllowAll");
 
 app.UseWebSockets();
 app.UseSession();
