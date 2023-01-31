@@ -205,7 +205,7 @@ public class GameSession
             { error = errorMessage }));
     }
 
-    private bool TryDeserializeJsonObject<T>(string str, out T? obj)
+    private static bool TryDeserializeJsonObject<T>(string str, out T? obj)
     {
         obj = default;
 
