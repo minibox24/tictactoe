@@ -5,6 +5,7 @@ import { FC, useState } from "react";
 import Ine from "./components/Ine";
 import MainPage from "./components/MainPage";
 import QueueingPage from "./components/QueueingPage";
+import VSText from "./components/VSText";
 
 interface AppProps {}
 
@@ -16,7 +17,7 @@ enum Status {
 
 const App: FC<AppProps> = () => {
   const controls = useAnimation();
-  const [status, setStatus] = useState<Status>(Status.Lobby);
+  const [status, setStatus] = useState<Status>(Status.Playing);
 
   return (
     <Container>
@@ -36,6 +37,8 @@ const App: FC<AppProps> = () => {
           Rollback
         </button>
       </TestControler>
+
+      <VSText player1="두둥실떠오르는히키코모리" player2="악질민수" />
 
       <Ine controls={controls} />
 
@@ -66,41 +69,5 @@ const TestControler = styled.div`
 `;
 
 const Container = styled.div``;
-
-const Main = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  width: 100vw;
-  height: 100vh;
-`;
-
-const Background = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100vw;
-  height: 100vh;
-
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-
-  backdrop-filter: blur(10px);
-`;
-
-const Title = styled.h1`
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-
-  color: white;
-
-  font-size: 6rem;
-  text-shadow: 0 0 10px black;
-`;
 
 export default App;
