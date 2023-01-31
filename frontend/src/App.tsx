@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { FC, useState } from "react";
 import useWebSocket from "react-use-websocket";
 import ConnectingPage from "./components/ConnectingPage";
+import Gameover from "./components/Gameover";
 import Ine from "./components/Ine";
 import LobbyPage from "./components/LobbyPage";
 import MyturnText from "./components/MyturnText";
@@ -33,10 +34,13 @@ enum Status {
   Playing,
 }
 
+const avatars = [Avatars.INE, Avatars.WAKPAGO];
+
 const App: FC<AppProps> = () => {
   const controls = useAnimation();
 
-  const [avatar, setAvatar] = useState<Avatars>(Avatars.INE);
+  const avatarIndex = Math.floor(Math.random() * avatars.length);
+  const [avatar, setAvatar] = useState<Avatars>(avatars[avatarIndex]);
 
   const [status, setStatus] = useState<Status>(Status.Connecting);
   const [nick, setNick] = useState<string>("");
@@ -76,10 +80,11 @@ const App: FC<AppProps> = () => {
         isFirst: data.first,
         myTurn: data.first,
         board: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        endType: null,
       };
 
       if (session.myTurn) {
-        controls.set("show");
+        controls.start("show");
       }
 
       setGameSession(session);
@@ -100,13 +105,23 @@ const App: FC<AppProps> = () => {
         };
       });
 
-      controls.set("show");
+      controls.start("show");
     },
     [MessageTypes.END]: (data: EndMessage) => {
-      console.log(data);
+      controls.stop();
+      controls.set("hidden");
+      setGameSession((prev: GameSession | null) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          myTurn: false,
+          endType: data.status,
+        };
+      });
     },
     [MessageTypes.ERROR]: (data: ErrorMessage) => {
-      console.log(data);
+      console.error(data.error);
     },
   };
 
@@ -149,6 +164,17 @@ const App: FC<AppProps> = () => {
     };
 
     sendMessage(JSON.stringify(payload));
+    setStatus(Status.Lobby);
+  };
+
+  const reGame = () => {
+    controls.set("hidden");
+    controls.set("default");
+
+    const avatarIndex = Math.floor(Math.random() * avatars.length);
+
+    setGameSession(null);
+    setAvatar(avatars[avatarIndex]);
     setStatus(Status.Lobby);
   };
 
@@ -277,13 +303,16 @@ const App: FC<AppProps> = () => {
 
       <MyturnText controls={controls} />
 
-      {status === Status.Connecting && <ConnectingPage failed={failed} />}
+      {gameSession?.endType && (
+        <Gameover session={gameSession} reGame={reGame} />
+      )}
 
+      {/* Pages */}
+      {status === Status.Connecting && <ConnectingPage failed={failed} />}
+      {status === Status.Queueing && <QueueingPage onCanceled={onCanceled} />}
       {status === Status.Lobby && (
         <LobbyPage nick={nick} status={statusInfo} onQueued={onQueued} />
       )}
-
-      {status === Status.Queueing && <QueueingPage onCanceled={onCanceled} />}
     </Container>
   );
 };
