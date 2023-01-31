@@ -59,17 +59,15 @@ const Tictactoe: FC<TictactoeProps> = ({ controls }) => {
   };
 
   return (
-    <FullscreenContainer>
-      <TTTWrapper variants={tttVariants} initial="default" animate={controls}>
-        <TTTContainer>
-          {TTT.map((value, index) => (
-            <TTTElement key={index} onClick={() => TTTClick(index)}>
-              {value}
-            </TTTElement>
-          ))}
-        </TTTContainer>
-      </TTTWrapper>
-    </FullscreenContainer>
+    <TTTWrapper variants={tttVariants} initial="default" animate={controls}>
+      <TTTContainer>
+        {TTT.map((value, index) => (
+          <TTTElement key={index} onClick={() => TTTClick(index)}>
+            {value}
+          </TTTElement>
+        ))}
+      </TTTContainer>
+    </TTTWrapper>
   );
 };
 
@@ -87,26 +85,17 @@ const tttVariants = {
   },
 };
 
-const FullscreenContainer = styled.div`
-  position: fixed;
-
-  top: 10%;
-
-  width: 100vw;
-  height: 100vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const TTTWrapper = styled(motion.div)`
   position: absolute;
-  top: 0;
-  left: 0;
 
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+
+  max-width: 90vw;
+
+  aspect-ratio: 1;
+
+  transform: scaleY(50%) scale(35%);
 
   display: flex;
   align-items: center;
@@ -114,10 +103,13 @@ const TTTWrapper = styled(motion.div)`
 `;
 
 const TTTContainer = styled.div`
-  width: 600px;
-  height: 600px;
-
   display: grid;
+
+  width: 100%;
+  height: 100%;
+
+  margin-top: -15%;
+
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
 `;
 

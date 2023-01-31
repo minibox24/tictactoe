@@ -2,7 +2,6 @@ import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
 import Ine from "./components/Ine";
-import Tictactoe from "./components/Tictactoe";
 
 function App() {
   const controls = useAnimation();
@@ -27,7 +26,12 @@ function App() {
       </TestControler>
 
       <Ine controls={controls} />
-      <Tictactoe controls={controls} />
+      {/* <Tictactoe controls={controls} /> */}
+
+      {/* <Main>
+        <Background />
+        <Title>틱택토</Title>
+      </Main> */}
     </Container>
   );
 }
@@ -40,5 +44,41 @@ const TestControler = styled.div`
 `;
 
 const Container = styled.div``;
+
+const Main = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+`;
+
+const Background = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+
+  backdrop-filter: blur(10px);
+`;
+
+const Title = styled.h1`
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+
+  color: white;
+
+  font-size: 6rem;
+  text-shadow: 0 0 10px black;
+`;
 
 export default App;

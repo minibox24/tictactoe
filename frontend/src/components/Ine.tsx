@@ -1,6 +1,7 @@
 import { AnimationControls, motion } from "framer-motion";
 import { FC } from "react";
 import styled from "styled-components";
+import Tictactoe from "./Tictactoe";
 
 interface IneProps {
   controls: AnimationControls;
@@ -14,21 +15,13 @@ const Ine: FC<IneProps> = ({ controls }) => {
         initial="default"
         animate={controls}
       >
-        <Hair
-          src="/static/images/hair.png"
-          variants={hairVariants}
-          initial="default"
-          animate={controls}
-        />
+        <Hair variants={hairVariants} initial="default" animate={controls} />
 
-        <Head
-          src="/static/images/head.png"
-          variants={headVariants}
-          initial="default"
-          animate={controls}
-        />
+        <Head variants={headVariants} initial="default" animate={controls}>
+          <Tictactoe controls={controls} />
+        </Head>
 
-        <Body src="/static/images/body.png" />
+        <Body />
       </IneContainer>
     </FullscreenContainer>
   );
@@ -84,25 +77,49 @@ const FullscreenContainer = styled.div`
 `;
 
 const IneContainer = styled(motion.div)`
-  display: flex;
+  /* display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; */
 `;
 
-const Hair = styled(motion.img)`
+const IneParts = styled(motion.div)`
+  width: 110vw;
+  max-width: 593px;
+
+  background-size: contain;
+  background-repeat: no-repeat;
+`;
+
+const Hair = styled(IneParts)`
   position: absolute;
   top: -15%;
 
   z-index: 10;
+
+  background-image: url("/static/images/hair.png");
+
+  aspect-ratio: 593 / 632;
 `;
 
-const Head = styled(motion.img)`
+const Head = styled(IneParts)`
   transform-origin: bottom;
+
+  background-image: url("/static/images/head.png");
+
+  aspect-ratio: 593 / 152;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 `;
 
-const Body = styled.img`
+const Body = styled(IneParts)`
   margin-top: -1px;
+
+  background-image: url("/static/images/body.png");
+
+  aspect-ratio: 593 / 550;
 `;
 
 export default Ine;
