@@ -1,5 +1,4 @@
 ﻿using System.Net.WebSockets;
-using System.Reflection;
 using Newtonsoft.Json;
 using Tictactoe.Utils;
 using static Tictactoe.Game.JsonClasses;
@@ -213,8 +212,6 @@ public class GameSession
         try
         {
             obj = JsonConvert.DeserializeObject<T>(str)!;
-
-            typeof(T).GetProperties().ToList().ForEach(Console.WriteLine);
 
             return true;
         }
