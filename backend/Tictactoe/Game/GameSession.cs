@@ -49,7 +49,7 @@ public class GameSession
         {
             if (!TryDeserializeJsonObject<CoreMessage>(str, out var data))
             {
-                await SendError("UNKNOWN");
+                await SendError("INCORRECT_FORMAT");
 
                 return;
             }
@@ -76,7 +76,7 @@ public class GameSession
     {
         if (data.type is null)
         {
-            await SendError("UNKNOWN");
+            await SendError("INCORRECT_FORMAT");
 
             return;
         }
@@ -87,10 +87,15 @@ public class GameSession
                 await AddQueue();
 
                 break;
+
+            case "UNQUEUE":
+                await LeaveQueue();
+
+                break;
             case "PUT":
                 if (!TryDeserializeJsonObject<PutMessage>(rawStr, out var putData))
                 {
-                    await SendError("UNKNOWN");
+                    await SendError("INCORRECT_FORMAT");
 
                     return;
                 }
@@ -99,7 +104,7 @@ public class GameSession
 
                 break;
             default:
-                await SendError("UNKNOWN");
+                await SendError("INCORRECT_FORMAT");
 
                 break;
         }
@@ -125,6 +130,19 @@ public class GameSession
         State = SessionState.Queue;
 
         await GameManager.CreateNewGameIfAvailable();
+    }
+
+    private async Task LeaveQueue()
+    {
+        if (State != SessionState.Queue)
+        {
+            await SendError("NOT_IN_QUEUE");
+
+            return;
+        }
+
+        GameManager.RemoveFromQueue(_session);
+        State = SessionState.Idle;
     }
 
     private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Game game)
@@ -160,7 +178,7 @@ public class GameSession
 
         if (msg.index is > 8 or < 0)
         {
-            await SendError("UNKNOWN");
+            await SendError("INCORRECT_FORMAT");
 
             return;
         }
