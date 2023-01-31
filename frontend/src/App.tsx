@@ -23,34 +23,94 @@ const App: FC<AppProps> = () => {
   return (
     <Container>
       <TestControler>
-        <button
-          onClick={() => {
-            controls.start("change");
-          }}
-        >
-          Change
-        </button>
-        <button
-          onClick={() => {
-            controls.start("default");
-          }}
-        >
-          Default
-        </button>
-        <button
-          onClick={() => {
-            controls.start("hidden");
-          }}
-        >
-          Hidden
-        </button>
-        <button
-          onClick={() => {
-            controls.start("show");
-          }}
-        >
-          Show
-        </button>
+        <TCRow>
+          Controls start:{" "}
+          <button
+            onClick={() => {
+              controls.start("change");
+            }}
+          >
+            change
+          </button>
+          <button
+            onClick={() => {
+              controls.start("default");
+            }}
+          >
+            default
+          </button>
+          <button
+            onClick={() => {
+              controls.start("hidden");
+            }}
+          >
+            hidden
+          </button>
+          <button
+            onClick={() => {
+              controls.start("show");
+            }}
+          >
+            show
+          </button>
+        </TCRow>
+
+        <TCRow>
+          Controls set:{" "}
+          <button
+            onClick={() => {
+              controls.set("change");
+            }}
+          >
+            change
+          </button>
+          <button
+            onClick={() => {
+              controls.set("default");
+            }}
+          >
+            default
+          </button>
+          <button
+            onClick={() => {
+              controls.set("hidden");
+            }}
+          >
+            hidden
+          </button>
+          <button
+            onClick={() => {
+              controls.set("show");
+            }}
+          >
+            show
+          </button>
+        </TCRow>
+
+        <TCRow>
+          Status set:{" "}
+          <button
+            onClick={() => {
+              setStatus(Status.Lobby);
+            }}
+          >
+            Lobby
+          </button>
+          <button
+            onClick={() => {
+              setStatus(Status.Queueing);
+            }}
+          >
+            Queueing
+          </button>
+          <button
+            onClick={() => {
+              setStatus(Status.Playing);
+            }}
+          >
+            Playing
+          </button>
+        </TCRow>
       </TestControler>
 
       {status === Status.Playing && (
@@ -85,7 +145,11 @@ const TestControler = styled.div`
   top: 0;
   left: 0;
   z-index: 10000;
+
+  color: white;
 `;
+
+const TCRow = styled.div``;
 
 const Container = styled.div``;
 
