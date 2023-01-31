@@ -27,6 +27,7 @@ public class JsonClasses
     {
         public string? type = "PLAY";
         public int index;
+        public int[]? board;
     }
 
     public class EndMessage

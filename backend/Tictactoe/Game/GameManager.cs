@@ -51,7 +51,7 @@ public class Game
     public int[][] Map { init; get; }
 
     public static event Func<Session, string, Task> OnEndEventReceived = (_, _) => Task.CompletedTask;
-    public static event Func<Session, int, Task> OnPlayEventReceived = (_, _) => Task.CompletedTask;
+    public static event Func<Session, int, int[], Task> OnPlayEventReceived = (_, _, _) => Task.CompletedTask;
 
     public Game(List<Session> players)
     {
@@ -67,7 +67,7 @@ public class Game
 
     public async Task<bool> Put(Session session, int index)
     {
-        int x = index / 3, y = index % 3;
+        int y = index / 3, x = index % 3;
 
         if (Map[y][x] != -1)
         {
@@ -86,7 +86,8 @@ public class Game
     {
         await OnPlayEventReceived(
             Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0],
-            index);
+            index,
+            Map.SelectMany(a => a).ToArray());
     }
 
     public void CheckEnd()

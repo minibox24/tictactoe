@@ -4,26 +4,24 @@ import styled from "styled-components";
 import { GameSession } from "../types/game";
 import Tictactoe from "./Tictactoe";
 
-interface IneProps {
+interface WakpagoProps {
   controls: AnimationControls;
   session: GameSession | null;
   onCheck: (index: number) => void;
 }
 
 const Zoom = 3;
-const HeadScaleX = 1;
-const HeadScaleY = 2;
+const HeadScaleX = 1.5;
+const HeadScaleY = 2.5;
 
-const Ine: FC<IneProps> = ({ controls, session, onCheck }) => {
+const Wakpago: FC<WakpagoProps> = ({ controls, session, onCheck }) => {
   return (
     <FullscreenContainer>
-      <IneContainer
+      <WakpagoContainer
         variants={containerVariants}
         initial="default"
         animate={controls}
       >
-        <Hair variants={hairVariants} initial="default" animate={controls} />
-
         <Head variants={headVariants} initial="default" animate={controls}>
           <Tictactoe
             session={session}
@@ -31,11 +29,12 @@ const Ine: FC<IneProps> = ({ controls, session, onCheck }) => {
             controls={controls}
             transformX={Zoom * HeadScaleX}
             transformY={Zoom * HeadScaleY}
+            yPosition={-35}
           />
         </Head>
 
-        <Body />
-      </IneContainer>
+        <Body variants={bodyVariants} initial="default" animate={controls} />
+      </WakpagoContainer>
     </FullscreenContainer>
   );
 };
@@ -45,7 +44,7 @@ const containerVariants = {
     transform: "translate(0, 0) scale(1)",
   },
   change: {
-    transform: `translate(0, 125%) scale(${Zoom})`,
+    transform: `translate(0, 135%) scale(${Zoom})`,
     transition: {
       duration: 1,
       delay: 1.5,
@@ -53,24 +52,25 @@ const containerVariants = {
   },
 };
 
-const hairVariants = {
+const headVariants = {
   default: {
-    transform: "scale(1) translate(0, 0)",
+    transform: "scale(1, 1)",
   },
   change: {
-    transform: "scale(0) translate(400vw, -400vh)",
+    transform: `scale(${HeadScaleX}, ${HeadScaleY})`,
     transition: {
-      duration: 2,
+      duration: 1,
+      delay: 0.5,
     },
   },
 };
 
-const headVariants = {
+const bodyVariants = {
   default: {
-    transform: `scaleY(1)`,
+    transform: "scaleX(1)",
   },
   change: {
-    transform: `scaleY(${HeadScaleY})`,
+    transform: "scaleX(1.5)",
     transition: {
       duration: 1,
       delay: 0.5,
@@ -89,9 +89,9 @@ const FullscreenContainer = styled.div`
   justify-content: center;
 `;
 
-const IneContainer = styled(motion.div)``;
+const WakpagoContainer = styled(motion.div)``;
 
-const IneParts = styled(motion.div)`
+const WakpagoParts = styled(motion.div)`
   width: 110vw;
   max-width: 593px;
 
@@ -99,35 +99,24 @@ const IneParts = styled(motion.div)`
   background-repeat: no-repeat;
 `;
 
-const Hair = styled(IneParts)`
-  position: absolute;
-  top: -15%;
-
-  z-index: 10;
-
-  background-image: url("/static/images/ine_hair.png");
-
-  aspect-ratio: 593 / 632;
-`;
-
-const Head = styled(IneParts)`
+const Head = styled(WakpagoParts)`
   transform-origin: bottom;
 
-  background-image: url("/static/images/ine_head.png");
+  background-image: url("/static/images/wakpago_head.png");
 
-  aspect-ratio: 593 / 152;
+  aspect-ratio: 715 / 147;
 
   display: flex;
   align-items: flex-end;
   justify-content: center;
 `;
 
-const Body = styled(IneParts)`
+const Body = styled(WakpagoParts)`
   margin-top: -1px;
 
-  background-image: url("/static/images/ine_body.png");
+  background-image: url("/static/images/wakpago_body.png");
 
-  aspect-ratio: 593 / 550;
+  aspect-ratio: 715 / 556;
 `;
 
-export default Ine;
+export default Wakpago;

@@ -1,4 +1,9 @@
-import { EndTypes, ErrorTypes, MessageTypes } from "./enums";
+import {
+  ClientMessageTypes,
+  EndTypes,
+  ErrorTypes,
+  MessageTypes,
+} from "./enums";
 
 export interface LoginMessage {
   type: MessageTypes.LOGIN;
@@ -7,10 +12,13 @@ export interface LoginMessage {
 
 export interface StartMessage {
   type: MessageTypes.START;
+  vs: string;
+  first: boolean;
 }
 
 export interface PlayMessage {
   type: MessageTypes.PLAY;
+  board: (-1 | 0 | 1)[];
   index: number;
 }
 
@@ -25,10 +33,14 @@ export interface ErrorMessage {
 }
 
 export interface QueueMessage {
-  type: MessageTypes.QUEUE;
+  type: ClientMessageTypes.QUEUE;
+}
+
+export interface UnqueueMessage {
+  type: ClientMessageTypes.UNQUEUE;
 }
 
 export interface PutMessage {
-  type: MessageTypes.PUT;
+  type: ClientMessageTypes.PUT;
   index: number;
 }

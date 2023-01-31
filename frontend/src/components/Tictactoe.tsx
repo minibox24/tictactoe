@@ -1,75 +1,62 @@
 import { AnimationControls, motion } from "framer-motion";
-import { FC, useState } from "react";
+import { FC } from "react";
 import styled from "styled-components";
+import { GameSession } from "../types/game";
+import { playSound } from "../utils/PlaySound";
+
+const boardMap = {
+  [-1]: null,
+  0: "X",
+  1: "O",
+};
 
 interface TictactoeProps {
+  session: GameSession | null;
+  onCheck: (index: number) => void;
   controls: AnimationControls;
+  transformX?: number;
+  transformY?: number;
+  yPosition?: number;
 }
 
-const Tictactoe: FC<TictactoeProps> = ({ controls }) => {
-  const [isO, setIsO] = useState<boolean>(false);
-  const [TTT, setTTT] = useState<(null | "O" | "X")[]>([
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]);
-
-  const isEnd = (ttt: (null | "O" | "X")[]) => {
-    let isWin = false;
-
-    const winMap = [123, 456, 789, 147, 258, 369, 357, 159];
-
-    winMap.forEach((value) => {
-      const [a, b, c] = value.toString().split("");
-
-      const aa = ttt[Number(a) - 1];
-      const bb = ttt[Number(b) - 1];
-      const cc = ttt[Number(c) - 1];
-
-      if (aa === bb && bb === cc && aa !== null) {
-        isWin = true;
-
-        alert(`${aa}님이 이겼습니다!`);
-        setTTT([null, null, null, null, null, null, null, null, null]);
-      }
-    });
-
-    if (!isWin && !ttt.includes(null)) {
-      alert("무승부입니다!");
-      setTTT([null, null, null, null, null, null, null, null, null]);
-    }
-  };
-
+const Tictactoe: FC<TictactoeProps> = ({
+  session,
+  onCheck,
+  controls,
+  transformX = 1,
+  transformY = 1,
+  yPosition = -15,
+}) => {
   const TTTClick = (index: number) => {
-    if (TTT[index] !== null) return;
+    if (!session?.myTurn) return;
+    if (session?.board[index] !== -1) return;
 
-    const newTTT = [...TTT];
-    newTTT[index] = isO ? "O" : "X";
-    setTTT(newTTT);
+    onCheck(index);
 
-    setIsO(!isO);
-
-    isEnd(newTTT);
+    playSound("/static/sounds/chap.mp3");
   };
 
   return (
-    <FullscreenContainer>
-      <TTTWrapper variants={tttVariants} initial="default" animate={controls}>
-        <TTTContainer>
-          {TTT.map((value, index) => (
-            <TTTElement key={index} onClick={() => TTTClick(index)}>
-              {value}
-            </TTTElement>
-          ))}
-        </TTTContainer>
-      </TTTWrapper>
-    </FullscreenContainer>
+    <TTTWrapper
+      variants={tttVariants}
+      initial="default"
+      animate={controls}
+      style={{
+        transform: `scale(${100 / transformX}%, ${100 / transformY}%)`,
+      }}
+    >
+      <TTTContainer
+        style={{
+          marginTop: `${yPosition}%`,
+        }}
+      >
+        {session?.board.map((value, index) => (
+          <TTTElement key={index} onClick={() => TTTClick(index)}>
+            {boardMap[value]}
+          </TTTElement>
+        ))}
+      </TTTContainer>
+    </TTTWrapper>
   );
 };
 
@@ -87,26 +74,15 @@ const tttVariants = {
   },
 };
 
-const FullscreenContainer = styled.div`
-  position: fixed;
-
-  top: 10%;
-
-  width: 100vw;
-  height: 100vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const TTTWrapper = styled(motion.div)`
   position: absolute;
-  top: 0;
-  left: 0;
 
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+
+  max-width: 90vw;
+
+  aspect-ratio: 1;
 
   display: flex;
   align-items: center;
@@ -114,10 +90,11 @@ const TTTWrapper = styled(motion.div)`
 `;
 
 const TTTContainer = styled.div`
-  width: 600px;
-  height: 600px;
-
   display: grid;
+
+  width: 100%;
+  height: 100%;
+
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
 `;
 
@@ -141,6 +118,10 @@ const TTTElement = styled.div`
   justify-content: center;
   font-weight: bold;
   font-size: 100px;
+
+  @media screen and (max-width: 400px) {
+    font-size: 70px;
+  }
 `;
 
 export default Tictactoe;
