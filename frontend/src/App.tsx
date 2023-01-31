@@ -25,6 +25,8 @@ import {
 } from "./types/messages";
 import { Status as StatusResponse } from "./types/responses";
 
+const HOST = "ttt.minibox.xyz";
+
 interface AppProps {}
 
 enum Status {
@@ -49,7 +51,7 @@ const App: FC<AppProps> = () => {
 
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
 
-  const { sendMessage } = useWebSocket("ws://localhost:5214/ws", {
+  const { sendMessage } = useWebSocket(`wss://${HOST}/ws`, {
     onClose: () => setFailed(true),
     onMessage: (event: MessageEvent) => {
       const data = JSON.parse(event.data);
@@ -64,7 +66,7 @@ const App: FC<AppProps> = () => {
   const callback = {
     [MessageTypes.LOGIN]: async (data: LoginMessage) => {
       try {
-        const response = await fetch("http://localhost:5214/status");
+        const response = await fetch(`https://${HOST}/status`);
         const status: StatusResponse = await response.json();
 
         setNick(data.nick);
