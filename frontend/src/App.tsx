@@ -54,6 +54,7 @@ const App: FC<AppProps> = () => {
 
   const { sendMessage } = useWebSocket(`wss://${HOST}/ws`, {
     onClose: () => setFailed(true),
+    shouldReconnect: () => true,
     onMessage: (event: MessageEvent) => {
       const data = JSON.parse(event.data);
       const type = data.type as MessageTypes;
