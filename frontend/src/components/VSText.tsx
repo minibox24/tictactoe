@@ -45,7 +45,7 @@ const TextContainer = styled.div`
 
   gap: 0.5rem;
 
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
 
@@ -62,6 +62,8 @@ const Text = styled.span<{ isVS?: boolean }>`
   text-align: center;
   font-weight: 500;
   font-size: 2rem;
+
+  color: white;
 
   @media screen and (max-width: 400px) {
     font-size: 1.5rem;
