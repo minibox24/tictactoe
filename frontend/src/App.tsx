@@ -94,6 +94,8 @@ const App: FC<AppProps> = () => {
       setStatus(Status.Playing);
 
       controls.start("change");
+
+      playSound("/static/sounds/Find.mp3");
     },
     [MessageTypes.PLAY]: (data: PlayMessage) => {
       if (!gameSession) return;
