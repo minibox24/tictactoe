@@ -34,13 +34,6 @@ const QueueingPage: FC<QueueingPageProps> = ({ onCanceled }) => {
           취소
         </CancelButton>
       </Center>
-
-      {/* Dummy */}
-      <Footer>
-        <FooterText>&#8203;</FooterText>
-        <FooterText>&#8203;</FooterText>
-        <FooterText>&#8203;</FooterText>
-      </Footer>
     </Container>
   );
 };
@@ -74,7 +67,6 @@ const Background = styled.div`
 
 const Center = styled.div`
   margin: auto 0;
-  padding-top: 10vh;
 
   display: flex;
   flex-direction: column;
@@ -104,17 +96,6 @@ const CancelButton = styled(motion.div)`
 
   padding: 1rem 2rem;
   border-radius: 1rem;
-`;
-
-const Footer = styled.div`
-  margin-top: auto;
-  margin-right: auto;
-
-  padding: 0.5rem;
-`;
-
-const FooterText = styled.p`
-  margin: 0;
 `;
 
 export default QueueingPage;
