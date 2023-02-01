@@ -66,7 +66,6 @@ const Background = styled.div`
 
 const Center = styled.div`
   margin: auto 0;
-  padding-top: 10vh;
 
   display: flex;
   flex-direction: column;
@@ -99,10 +98,14 @@ const PlayButton = styled(motion.div)`
 `;
 
 const Footer = styled.div`
-  margin-top: auto;
-  margin-right: auto;
+  position: fixed;
+  bottom: 0;
+  left: 0;
 
   padding: 0.5rem;
+
+  display: flex;
+  flex-direction: column;
 `;
 
 const FooterText = styled.p`

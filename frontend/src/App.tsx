@@ -24,6 +24,7 @@ import {
   UnqueueMessage,
 } from "./types/messages";
 import { Status as StatusResponse } from "./types/responses";
+import { playSound } from "./utils/PlaySound";
 
 const HOST = "ttt.minibox.xyz";
 
@@ -96,6 +97,8 @@ const App: FC<AppProps> = () => {
     },
     [MessageTypes.PLAY]: (data: PlayMessage) => {
       if (!gameSession) return;
+
+      playSound("/static/sounds/chap.mp3");
 
       setGameSession((prev: GameSession | null) => {
         if (!prev) return prev;
