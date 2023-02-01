@@ -40,6 +40,18 @@ public class GameManager
     {
         _gameQueue = new Queue<Session>(_gameQueue.Where(q => q.SessionId != session.SessionId));
     }
+
+    public static int GetPlayingGameCount()
+    {
+        FilterEndedGames();
+
+        return Games.Count;
+    }
+
+    public static void FilterEndedGames()
+    {
+        Games.ToList().ForEach(x => x.CheckIsAutoEnded());
+    }
 }
 
 public class Game
@@ -50,6 +62,8 @@ public class Game
 
     public int[][] Map { init; get; }
 
+    private DateTime StartTime { get; }
+
     public static event Func<Session, string, Task> OnEndEventReceived = (_, _) => Task.CompletedTask;
     public static event Func<Session, int, int[], Task> OnPlayEventReceived = (_, _, _) => Task.CompletedTask;
 
@@ -58,6 +72,7 @@ public class Game
         Players = players;
         Turn = 0;
         Map = Enumerable.Range(0, 3).Select(_ => new[] { -1, -1, -1 }).ToArray();
+        StartTime = DateTime.Now;
     }
 
     public bool IsMyTurn(Session session)
@@ -121,6 +136,19 @@ public class Game
 
         bool CheckCross(int player) => (Map[0][0] == player && Map[1][1] == player && Map[2][2] == player) ||
                                        (Map[0][2] == player && Map[1][1] == player && Map[2][0] == player);
+    }
+
+    public void CheckIsAutoEnded()
+    {
+        if ((DateTime.Now - StartTime).TotalMinutes < 10)
+        {
+            return;
+        }
+
+        OnEndEventReceived(Players[0], "DRAW");
+        OnEndEventReceived(Players[1], "DRAW");
+
+        GameManager.Games.Remove(this);
     }
 
     public async Task LeaveGame(Session session)
