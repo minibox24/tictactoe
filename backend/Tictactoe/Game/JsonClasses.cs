@@ -48,6 +48,12 @@ public class JsonClasses
         public int index;
     }
 
+    public class EmoteMessage
+    {
+        public string type = "EMOTE";
+        public string? emoji;
+    }
+
     public class Status
     {
         public int now;

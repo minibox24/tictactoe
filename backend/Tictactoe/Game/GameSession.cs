@@ -42,6 +42,7 @@ public class GameSession
         GameManager.OnStartEventReceived += OnStartEventReceived;
         Game.OnPlayEventReceived += OnOnPlayEventReceived;
         Game.OnEndEventReceived += OnEndEventReceived;
+        Game.OnEmoteEventReceived += OnOnEmoteEventReceived;
 
         var (str, receiveResult) = await WebSocket.ReceiveStringAsync();
 
@@ -101,6 +102,17 @@ public class GameSession
                 }
 
                 await Put(putData!);
+
+                break;
+            case "EMOTE":
+                if (!TryDeserializeJsonObject<EmoteMessage>(rawStr, out var emoteData))
+                {
+                    await SendError("INCORRECT_FORMAT");
+
+                    return;
+                }
+
+                await Emote(emoteData!.emoji!);
 
                 break;
             default:
@@ -190,7 +202,17 @@ public class GameSession
             return;
         }
 
-        _game.CheckEnd();
+        await _game.CheckEnd();
+    }
+
+    private async Task Emote(string emoji)
+    {
+        if (State != SessionState.Game)
+        {
+            await SendError("NOT_PLAYING");
+        }
+
+        await _game!.Emote(_session, emoji);
     }
 
     private async Task OnOnPlayEventReceived(Session session, int index, int[] board)
@@ -215,6 +237,17 @@ public class GameSession
             { status = endType }));
 
         State = SessionState.Idle;
+    }
+
+    private async Task OnOnEmoteEventReceived(Session session, string emoji)
+    {
+        if (session.SessionId != _session.SessionId)
+        {
+            return;
+        }
+
+        await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new EmoteMessage
+            { emoji = emoji }));
     }
 
     private async Task SendError(string errorMessage)

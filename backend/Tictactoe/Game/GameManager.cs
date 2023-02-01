@@ -50,7 +50,7 @@ public class GameManager
 
     public static void FilterEndedGames()
     {
-        Games.ToList().ForEach(x => x.CheckIsAutoEnded());
+        Games.ToList().ForEach(x => x.CheckIsAutoEnded().Wait());
     }
 }
 
@@ -66,6 +66,7 @@ public class Game
 
     public static event Func<Session, string, Task> OnEndEventReceived = (_, _) => Task.CompletedTask;
     public static event Func<Session, int, int[], Task> OnPlayEventReceived = (_, _, _) => Task.CompletedTask;
+    public static event Func<Session, string, Task> OnEmoteEventReceived = (_, _) => Task.CompletedTask;
 
     public Game(List<Session> players)
     {
@@ -100,31 +101,31 @@ public class Game
     public async Task Play(Session session, int index)
     {
         await OnPlayEventReceived(
-            Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0],
+            GetOppositePlayer(session),
             index,
             Map.SelectMany(a => a).ToArray());
     }
 
-    public void CheckEnd()
+    public async Task CheckEnd()
     {
         if (CheckVertical(0) || CheckHorizontal(0) || CheckCross(0))
         {
-            OnEndEventReceived(Players[0], "WIN");
-            OnEndEventReceived(Players[1], "LOSE");
+            await OnEndEventReceived(Players[0], "WIN");
+            await OnEndEventReceived(Players[1], "LOSE");
 
             GameManager.Games.Remove(this);
         }
         else if (CheckVertical(1) || CheckHorizontal(1) || CheckCross(1))
         {
-            OnEndEventReceived(Players[1], "WIN");
-            OnEndEventReceived(Players[0], "LOSE");
+            await OnEndEventReceived(Players[1], "WIN");
+            await OnEndEventReceived(Players[0], "LOSE");
 
             GameManager.Games.Remove(this);
         }
         else if (!Map.Any(row => row.Any(col => col == -1)))
         {
-            OnEndEventReceived(Players[0], "DRAW");
-            OnEndEventReceived(Players[1], "DRAW");
+            await OnEndEventReceived(Players[0], "DRAW");
+            await OnEndEventReceived(Players[1], "DRAW");
 
             GameManager.Games.Remove(this);
         }
@@ -138,15 +139,15 @@ public class Game
                                        (Map[0][2] == player && Map[1][1] == player && Map[2][0] == player);
     }
 
-    public void CheckIsAutoEnded()
+    public async Task CheckIsAutoEnded()
     {
         if ((DateTime.Now - StartTime).TotalMinutes < 10)
         {
             return;
         }
 
-        OnEndEventReceived(Players[0], "DRAW");
-        OnEndEventReceived(Players[1], "DRAW");
+        await OnEndEventReceived(Players[0], "DRAW");
+        await OnEndEventReceived(Players[1], "DRAW");
 
         GameManager.Games.Remove(this);
     }
@@ -154,8 +155,19 @@ public class Game
     public async Task LeaveGame(Session session)
     {
         await OnEndEventReceived(
-            Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0], "LEAVE");
+            GetOppositePlayer(session), "LEAVE");
 
         GameManager.Games.Remove(this);
+    }
+
+    public async Task Emote(Session session, string emoji)
+    {
+        await OnEmoteEventReceived(
+            GetOppositePlayer(session), emoji);
+    }
+
+    private Session GetOppositePlayer(Session session)
+    {
+        return Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0];
     }
 }
