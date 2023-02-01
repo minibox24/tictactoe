@@ -3,6 +3,7 @@ import { FC } from "react";
 import styled from "styled-components";
 import { EndTypes } from "../types/enums";
 import { GameSession } from "../types/game";
+import { playSound } from "../utils/PlaySound";
 
 interface GameoverProps {
   session: GameSession | null;
@@ -12,6 +13,20 @@ interface GameoverProps {
 const Gameover: FC<GameoverProps> = ({ session, reGame }) => {
   if (!session) return null;
   if (!session.endType) return null;
+
+  switch (session.endType) {
+    case EndTypes.WIN:
+      playSound("/static/sounds/Win.mp3");
+      break;
+    case EndTypes.LOSE:
+      playSound("/static/sounds/Lose.mp3");
+      break;
+    case EndTypes.DRAW:
+      playSound("/static/sounds/Draw.mp3");
+      break;
+    case EndTypes.LEAVE:
+      playSound("/static/sounds/Draw.mp3");
+  }
 
   const text = {
     [EndTypes.WIN]: "승리했습니다!",
