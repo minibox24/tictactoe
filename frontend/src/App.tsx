@@ -94,6 +94,8 @@ const App: FC<AppProps> = () => {
       setStatus(Status.Playing);
 
       controls.start("change");
+
+      playSound("/static/sounds/Find.mp3");
     },
     [MessageTypes.PLAY]: (data: PlayMessage) => {
       if (!gameSession) return;
@@ -168,6 +170,13 @@ const App: FC<AppProps> = () => {
       type: ClientMessageTypes.UNQUEUE,
     };
 
+    (async () => {
+      const response = await fetch(`https://${HOST}/status`);
+      const status: StatusResponse = await response.json();
+
+      setStatusInfo(status);
+    })();
+
     sendMessage(JSON.stringify(payload));
     setStatus(Status.Lobby);
   };
@@ -177,6 +186,13 @@ const App: FC<AppProps> = () => {
     controls.set("default");
 
     const avatarIndex = Math.floor(Math.random() * avatars.length);
+
+    (async () => {
+      const response = await fetch(`https://${HOST}/status`);
+      const status: StatusResponse = await response.json();
+
+      setStatusInfo(status);
+    })();
 
     setGameSession(null);
     setAvatar(avatars[avatarIndex]);
