@@ -170,6 +170,13 @@ const App: FC<AppProps> = () => {
       type: ClientMessageTypes.UNQUEUE,
     };
 
+    (async () => {
+      const response = await fetch(`https://${HOST}/status`);
+      const status: StatusResponse = await response.json();
+
+      setStatusInfo(status);
+    })();
+
     sendMessage(JSON.stringify(payload));
     setStatus(Status.Lobby);
   };
