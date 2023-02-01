@@ -67,6 +67,7 @@ const Background = styled.div`
 
 const Center = styled.div`
   margin: auto 0;
+  margin-top: 30vh;
 
   display: flex;
   flex-direction: column;
