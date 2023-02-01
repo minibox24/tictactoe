@@ -180,6 +180,13 @@ const App: FC<AppProps> = () => {
 
     const avatarIndex = Math.floor(Math.random() * avatars.length);
 
+    (async () => {
+      const response = await fetch(`https://${HOST}/status`);
+      const status: StatusResponse = await response.json();
+
+      setStatusInfo(status);
+    })();
+
     setGameSession(null);
     setAvatar(avatars[avatarIndex]);
     setStatus(Status.Lobby);
