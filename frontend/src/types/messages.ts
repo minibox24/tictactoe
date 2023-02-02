@@ -38,7 +38,7 @@ export interface ErrorMessage {
 
 export interface EmoteMessage {
   type: MessageTypes.EMOTE | ClientMessageTypes.EMOTE;
-  emote: string;
+  emoji: string;
 }
 
 export interface PongMessage {
