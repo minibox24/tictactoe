@@ -39,11 +39,11 @@ public class GameSession
 
         State = SessionState.Idle;
 
-        GameManager.OnStartEventReceived += OnStartEventReceived;
-        GameManager.OnPingEventReceived += OnOnPingEventReceived;
-        Game.OnPlayEventReceived += OnOnPlayEventReceived;
-        Game.OnEndEventReceived += OnEndEventReceived;
-        Game.OnEmoteEventReceived += OnOnEmoteEventReceived;
+        GameManager.StartEventReceived += OnStartEventReceived;
+        GameManager.PingEventReceived += OnPingEventReceived;
+        Game.PlayEventReceived += OnPlayEventReceived;
+        Game.EndEventReceived += OnEndEventReceived;
+        Game.EmoteEventReceived += OnEmoteEventReceived;
 
         var (str, receiveResult) = await WebSocket.ReceiveStringAsync();
 
@@ -116,7 +116,7 @@ public class GameSession
                 await Emote(emoteData!.emoji!);
 
                 break;
-            case "PING":
+            case "PONG":
                 break;
             default:
                 await SendError("INCORRECT_FORMAT");
@@ -125,7 +125,7 @@ public class GameSession
         }
     }
 
-    private async Task OnOnPingEventReceived()
+    private async Task OnPingEventReceived()
     {
         await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new PingMessage()));
     }
@@ -225,7 +225,7 @@ public class GameSession
         await _game!.Emote(_session, emoji);
     }
 
-    private async Task OnOnPlayEventReceived(Session session, int index, int[] board)
+    private async Task OnPlayEventReceived(Session session, int index, int[] board)
     {
         if (session.SessionId != _session.SessionId)
         {
@@ -249,7 +249,7 @@ public class GameSession
         State = SessionState.Idle;
     }
 
-    private async Task OnOnEmoteEventReceived(Session session, string emoji)
+    private async Task OnEmoteEventReceived(Session session, string emoji)
     {
         if (session.SessionId != _session.SessionId)
         {

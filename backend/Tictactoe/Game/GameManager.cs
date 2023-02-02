@@ -6,10 +6,10 @@ public class GameManager
 
     public static readonly List<Game> Games = new();
 
-    public static event Func<Session, string, bool, Game, Task> OnStartEventReceived =
+    public static event Func<Session, string, bool, Game, Task> StartEventReceived =
         (_, _, _, _) => Task.CompletedTask;
 
-    public static event Func<Task> OnPingEventReceived = () => Task.CompletedTask;
+    public static event Func<Task> PingEventReceived = () => Task.CompletedTask;
 
     static GameManager()
     {
@@ -19,7 +19,7 @@ public class GameManager
             {
                 Thread.Sleep(1000 * 10);
 
-                await OnPingEventReceived();
+                await PingEventReceived();
             }
         });
     }
@@ -40,8 +40,8 @@ public class GameManager
         Game game = new(sessions);
         Games.Add(game);
 
-        await OnStartEventReceived(sessions[0], sessions[1].NickName, true, game);
-        await OnStartEventReceived(sessions[1], sessions[0].NickName, false, game);
+        await StartEventReceived(sessions[0], sessions[1].NickName, true, game);
+        await StartEventReceived(sessions[1], sessions[0].NickName, false, game);
 
         TotalPlayCountController.AddPlayCount();
     }
@@ -79,9 +79,9 @@ public class Game
 
     private DateTime StartTime { get; }
 
-    public static event Func<Session, string, Task> OnEndEventReceived = (_, _) => Task.CompletedTask;
-    public static event Func<Session, int, int[], Task> OnPlayEventReceived = (_, _, _) => Task.CompletedTask;
-    public static event Func<Session, string, Task> OnEmoteEventReceived = (_, _) => Task.CompletedTask;
+    public static event Func<Session, string, Task> EndEventReceived = (_, _) => Task.CompletedTask;
+    public static event Func<Session, int, int[], Task> PlayEventReceived = (_, _, _) => Task.CompletedTask;
+    public static event Func<Session, string, Task> EmoteEventReceived = (_, _) => Task.CompletedTask;
 
     public Game(List<Session> players)
     {
@@ -115,7 +115,7 @@ public class Game
 
     public async Task Play(Session session, int index)
     {
-        await OnPlayEventReceived(
+        await PlayEventReceived(
             GetOppositePlayer(session),
             index,
             Map.SelectMany(a => a).ToArray());
@@ -125,22 +125,22 @@ public class Game
     {
         if (CheckVertical(0) || CheckHorizontal(0) || CheckCross(0))
         {
-            await OnEndEventReceived(Players[0], "WIN");
-            await OnEndEventReceived(Players[1], "LOSE");
+            await EndEventReceived(Players[0], "WIN");
+            await EndEventReceived(Players[1], "LOSE");
 
             GameManager.Games.Remove(this);
         }
         else if (CheckVertical(1) || CheckHorizontal(1) || CheckCross(1))
         {
-            await OnEndEventReceived(Players[1], "WIN");
-            await OnEndEventReceived(Players[0], "LOSE");
+            await EndEventReceived(Players[1], "WIN");
+            await EndEventReceived(Players[0], "LOSE");
 
             GameManager.Games.Remove(this);
         }
         else if (!Map.Any(row => row.Any(col => col == -1)))
         {
-            await OnEndEventReceived(Players[0], "DRAW");
-            await OnEndEventReceived(Players[1], "DRAW");
+            await EndEventReceived(Players[0], "DRAW");
+            await EndEventReceived(Players[1], "DRAW");
 
             GameManager.Games.Remove(this);
         }
@@ -161,15 +161,15 @@ public class Game
             return;
         }
 
-        await OnEndEventReceived(Players[0], "DRAW");
-        await OnEndEventReceived(Players[1], "DRAW");
+        await EndEventReceived(Players[0], "DRAW");
+        await EndEventReceived(Players[1], "DRAW");
 
         GameManager.Games.Remove(this);
     }
 
     public async Task LeaveGame(Session session)
     {
-        await OnEndEventReceived(
+        await EndEventReceived(
             GetOppositePlayer(session), "LEAVE");
 
         GameManager.Games.Remove(this);
@@ -177,7 +177,7 @@ public class Game
 
     public async Task Emote(Session session, string emoji)
     {
-        await OnEmoteEventReceived(
+        await EmoteEventReceived(
             GetOppositePlayer(session), emoji);
     }
 
