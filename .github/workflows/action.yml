@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: SSH
         uses: appleboy/ssh-action@v0.1.7
+        env:
+          PM2: /root/.nvm/versions/node/v14.17.6/bin/pm2
+
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_SSH_ID }}
@@ -20,13 +23,11 @@ jobs:
           port: 22
 
           script: |
-            sudo su
-
             cd /tictactoe/backend/Tictactoe
             git pull
 
-            pm2 stop tictactoe
+            $PM2 stop tictactoe
 
             ~/.dotnet/dotnet publish
 
-            pm2 start tictactoe
+            $PM2 start tictactoe
