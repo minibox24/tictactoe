@@ -26,6 +26,7 @@ public class JsonClasses
         public string type = "START";
         public string? vs;
         public bool first;
+        public bool isBot;
     }
 
     public class PlayMessage

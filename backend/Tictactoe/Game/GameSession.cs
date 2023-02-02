@@ -45,23 +45,29 @@ public class GameSession
         Game.EndEventReceived += OnEndEventReceived;
         Game.EmoteEventReceived += OnEmoteEventReceived;
 
-        var (str, receiveResult) = await WebSocket.ReceiveStringAsync();
-
-        while (!receiveResult.CloseStatus.HasValue)
+        if (WebSocket.State == WebSocketState.Open)
         {
-            if (!TryDeserializeJsonObject<CoreMessage>(str, out var data))
-            {
-                await SendError("INCORRECT_FORMAT");
+            var (str, receiveResult) = await WebSocket.ReceiveStringAsync();
 
-                return;
+            while (!receiveResult.CloseStatus.HasValue)
+            {
+                if (!TryDeserializeJsonObject<CoreMessage>(str, out var data))
+                {
+                    await SendError("INCORRECT_FORMAT");
+
+                    return;
+                }
+
+                await HandleEvent(data!, str);
+
+                if (WebSocket.State == WebSocketState.Open)
+                {
+                    (str, receiveResult) = await WebSocket.ReceiveStringAsync();
+                }
             }
 
-            await HandleEvent(data!, str);
-
-            (str, receiveResult) = await WebSocket.ReceiveStringAsync();
+            await WebSocket.CloseAsync(receiveResult);
         }
-
-        await WebSocket.CloseAsync(receiveResult);
 
         if (State == SessionState.Queue)
         {
@@ -171,7 +177,7 @@ public class GameSession
         State = SessionState.Idle;
     }
 
-    private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Game game)
+    private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Game game, bool isBot)
     {
         if (session.SessionId != _session.SessionId)
         {
@@ -181,7 +187,7 @@ public class GameSession
         _game = game;
 
         await WebSocket.SendStringAsync(
-            JsonConvert.SerializeObject(new StartMessage { vs = vs, first = isFirst }));
+            JsonConvert.SerializeObject(new StartMessage { vs = vs, first = isFirst, isBot = isBot }));
 
         State = SessionState.Game;
     }
