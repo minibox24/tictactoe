@@ -45,23 +45,29 @@ public class GameSession
         Game.EndEventReceived += OnEndEventReceived;
         Game.EmoteEventReceived += OnEmoteEventReceived;
 
-        var (str, receiveResult) = await WebSocket.ReceiveStringAsync();
-
-        while (!receiveResult.CloseStatus.HasValue)
+        if (WebSocket.State == WebSocketState.Open)
         {
-            if (!TryDeserializeJsonObject<CoreMessage>(str, out var data))
-            {
-                await SendError("INCORRECT_FORMAT");
+            var (str, receiveResult) = await WebSocket.ReceiveStringAsync();
 
-                return;
+            while (!receiveResult.CloseStatus.HasValue)
+            {
+                if (!TryDeserializeJsonObject<CoreMessage>(str, out var data))
+                {
+                    await SendError("INCORRECT_FORMAT");
+
+                    return;
+                }
+
+                await HandleEvent(data!, str);
+
+                if (WebSocket.State == WebSocketState.Open)
+                {
+                    (str, receiveResult) = await WebSocket.ReceiveStringAsync();
+                }
             }
 
-            await HandleEvent(data!, str);
-
-            (str, receiveResult) = await WebSocket.ReceiveStringAsync();
+            await WebSocket.CloseAsync(receiveResult);
         }
-
-        await WebSocket.CloseAsync(receiveResult);
 
         if (State == SessionState.Queue)
         {
