@@ -29,6 +29,11 @@ public static class WebSocketExtension
     public static async Task SendStringAsync(this WebSocket webSocket, string str, WebSocketMessageType messageType,
         bool endOfMessage, CancellationToken cancellationToken)
     {
+        if (webSocket.State != WebSocketState.Open)
+        {
+            return;
+        }
+
         var buffer = Utility.StringToBuffer(str);
 
         await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), messageType,
