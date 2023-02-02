@@ -17,9 +17,16 @@ public class GameManager
         {
             while (true)
             {
-                Thread.Sleep(1000 * 10);
+                Thread.Sleep(1000 * 1);
 
-                await PingEventReceived();
+                try
+                {
+                    await PingEventReceived();
+                }
+                catch
+                {
+                    // ignored
+                }
             }
         });
     }

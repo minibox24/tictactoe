@@ -72,6 +72,12 @@ public class GameSession
         {
             await _game!.LeaveGame(_session);
         }
+
+        GameManager.StartEventReceived -= OnStartEventReceived;
+        GameManager.PingEventReceived -= OnPingEventReceived;
+        Game.PlayEventReceived -= OnPlayEventReceived;
+        Game.EndEventReceived -= OnEndEventReceived;
+        Game.EmoteEventReceived -= OnEmoteEventReceived;
     }
 
     private async Task HandleEvent(CoreMessage data, string rawStr)
