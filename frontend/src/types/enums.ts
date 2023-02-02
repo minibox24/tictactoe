@@ -1,15 +1,19 @@
 export enum MessageTypes {
+  PING = "PING",
   LOGIN = "LOGIN",
   START = "START",
   PLAY = "PLAY",
   END = "END",
+  EMOTE = "EMOTE",
   ERROR = "ERROR",
 }
 
 export enum ClientMessageTypes {
+  PONG = "PONG",
   QUEUE = "QUEUE",
   UNQUEUE = "UNQUEUE",
   PUT = "PUT",
+  EMOTE = "EMOTE",
 }
 
 export enum EndTypes {
