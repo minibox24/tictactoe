@@ -31,8 +31,8 @@ import {
 import { Status as StatusResponse } from "./types/responses";
 import { playSound } from "./utils/PlaySound";
 
-const SECURE = false;
-const HOST = "localhost:5214";
+const SECURE = true;
+const HOST = "ttt.minibox.xyz";
 
 interface AppProps {}
 
