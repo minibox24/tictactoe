@@ -23,7 +23,8 @@ jobs:
           port: 22
 
           script: |
-            source ~/.bashrc
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
 
             cd /tictactoe/backend/Tictactoe
             git pull
