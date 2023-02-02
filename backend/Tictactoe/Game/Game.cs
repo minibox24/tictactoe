@@ -10,6 +10,8 @@ public class Game
 
     private DateTime StartTime { get; }
 
+    private bool _isEnded;
+
     public static event Func<Session, string, Task> EndEventReceived = (_, _) => Task.CompletedTask;
     public static event Func<Session, int, int[], Task> PlayEventReceived = (_, _, _) => Task.CompletedTask;
     public static event Func<Session, string, Task> EmoteEventReceived = (_, _) => Task.CompletedTask;
@@ -20,6 +22,15 @@ public class Game
         Turn = 0;
         Map = Enumerable.Range(0, 3).Select(_ => new[] { -1, -1, -1 }).ToArray();
         StartTime = DateTime.Now;
+        _isEnded = false;
+
+        if (players.Count == 1)
+        {
+            Players.Add(new Session("", ""));
+
+            PlayEventReceived += OnPlayEventReceived;
+            EndEventReceived += OnEndEventReceived;
+        }
     }
 
     public bool IsMyTurn(Session session)
@@ -115,5 +126,51 @@ public class Game
     private Session GetOppositePlayer(Session session)
     {
         return Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0];
+    }
+
+    private Task OnPlayEventReceived(Session session, int index, int[] board)
+    {
+        if (session.SessionId != "")
+        {
+            return Task.CompletedTask;
+        }
+
+        var availableIndexes = Enumerable.Range(0, board.Length).Where(x => board[x] == -1).ToList();
+
+        if (!availableIndexes.Any())
+        {
+            return Task.CompletedTask;
+        }
+
+        Task.Run((async Task() =>
+        {
+            Random random = new();
+
+            Thread.Sleep(100 * random.Next(5, 30));
+
+            if (_isEnded)
+            {
+                return;
+            }
+
+            await Put(session, availableIndexes[random.Next(availableIndexes.Count)]);
+        })!);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEndEventReceived(Session session, string endType)
+    {
+        if (session.SessionId != "")
+        {
+            return;
+        }
+
+        _isEnded = true;
+
+        PlayEventReceived -= OnPlayEventReceived;
+        EndEventReceived -= OnEndEventReceived;
+
+        await Task.CompletedTask;
     }
 }
