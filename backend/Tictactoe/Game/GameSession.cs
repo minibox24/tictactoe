@@ -40,6 +40,7 @@ public class GameSession
         State = SessionState.Idle;
 
         GameManager.OnStartEventReceived += OnStartEventReceived;
+        GameManager.OnPingEventReceived += OnOnPingEventReceived;
         Game.OnPlayEventReceived += OnOnPlayEventReceived;
         Game.OnEndEventReceived += OnEndEventReceived;
         Game.OnEmoteEventReceived += OnOnEmoteEventReceived;
@@ -115,11 +116,18 @@ public class GameSession
                 await Emote(emoteData!.emoji!);
 
                 break;
+            case "PING":
+                break;
             default:
                 await SendError("INCORRECT_FORMAT");
 
                 break;
         }
+    }
+
+    private async Task OnOnPingEventReceived()
+    {
+        await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new PingMessage()));
     }
 
     private async Task AddQueue()

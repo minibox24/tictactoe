@@ -16,6 +16,11 @@ public class JsonClasses
         public string? nick;
     }
 
+    public class PingMessage
+    {
+        public string type = "PING";
+    }
+
     public class StartMessage
     {
         public string type = "START";

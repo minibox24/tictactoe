@@ -9,6 +9,21 @@ public class GameManager
     public static event Func<Session, string, bool, Game, Task> OnStartEventReceived =
         (_, _, _, _) => Task.CompletedTask;
 
+    public static event Func<Task> OnPingEventReceived = () => Task.CompletedTask;
+
+    static GameManager()
+    {
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                Thread.Sleep(1000 * 10);
+
+                await OnPingEventReceived();
+            }
+        });
+    }
+
     public static void Enqueue(Session session)
     {
         _gameQueue.Enqueue(session);
