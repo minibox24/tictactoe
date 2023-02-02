@@ -20,6 +20,8 @@ jobs:
           port: 22
 
           script: |
+            sudo su
+
             cd /tictactoe/backend/Tictactoe
             git pull
 
