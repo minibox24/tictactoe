@@ -1,0 +1,30 @@
+name: Publish Backend
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_SSH_ID }}
+          password: ${{ secrets.REMOTE_SSH_PASSWORD }}
+          port: 22
+
+          script: |
+            cd /tictactoe/backend/Tictactoe
+            git pull
+
+            pm2 stop tictactoe
+
+            ~/.dotnet/dotnet publish
+
+            pm2 start tictactoe

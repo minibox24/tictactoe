@@ -16,6 +16,11 @@ public class JsonClasses
         public string? nick;
     }
 
+    public class PingMessage
+    {
+        public string type = "PING";
+    }
+
     public class StartMessage
     {
         public string type = "START";
@@ -46,6 +51,12 @@ public class JsonClasses
     {
         public string type = "PUT";
         public int index;
+    }
+
+    public class EmoteMessage
+    {
+        public string type = "EMOTE";
+        public string? emoji;
     }
 
     public class Status

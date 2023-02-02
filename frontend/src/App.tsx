@@ -14,10 +14,13 @@ import Wakpago from "./components/Wakpago";
 import { Avatars, ClientMessageTypes, MessageTypes } from "./types/enums";
 import { GameSession } from "./types/game";
 import {
+  EmoteMessage,
   EndMessage,
   ErrorMessage,
   LoginMessage,
+  PingMessage,
   PlayMessage,
+  PongMessage,
   PutMessage,
   QueueMessage,
   StartMessage,
@@ -53,7 +56,11 @@ const App: FC<AppProps> = () => {
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
 
   const { sendMessage } = useWebSocket(`wss://${HOST}/ws`, {
-    onClose: () => setFailed(true),
+    onClose: () => {
+      setFailed(true);
+      setStatus(Status.Connecting);
+    },
+
     shouldReconnect: () => true,
     onMessage: (event: MessageEvent) => {
       const data = JSON.parse(event.data);
@@ -77,6 +84,13 @@ const App: FC<AppProps> = () => {
       } catch {
         setFailed(true);
       }
+    },
+    [MessageTypes.PING]: (data: PingMessage) => {
+      const payload: PongMessage = {
+        type: ClientMessageTypes.PONG,
+      };
+
+      sendMessage(JSON.stringify(payload));
     },
     [MessageTypes.START]: (data: StartMessage) => {
       const session: GameSession = {
@@ -127,6 +141,9 @@ const App: FC<AppProps> = () => {
           endType: data.status,
         };
       });
+    },
+    [MessageTypes.EMOTE]: (data: EmoteMessage) => {
+      console.log(data.emote);
     },
     [MessageTypes.ERROR]: (data: ErrorMessage) => {
       console.error(data.error);
@@ -219,7 +236,7 @@ const App: FC<AppProps> = () => {
 
   return (
     <Container>
-      {/* <TestControler>
+      <TestControler>
         <TCRow>
           Controls start:{" "}
           <button
@@ -315,7 +332,7 @@ const App: FC<AppProps> = () => {
             Playing
           </button>
         </TCRow>
-      </TestControler> */}
+      </TestControler>
 
       {status === Status.Playing && gameSession && (
         <VSText player1={nick} player2={gameSession.vs} />

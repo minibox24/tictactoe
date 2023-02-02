@@ -12,6 +12,6 @@ public class StatusController : ControllerBase
     public string Get()
     {
         return JsonConvert.SerializeObject(new JsonClasses.Status
-            { now = GameManager.Games.Count, total = TotalPlayCountController.TotalPlayCount });
+            { now = GameManager.GetPlayingGameCount(), total = TotalPlayCountController.TotalPlayCount });
     }
 }

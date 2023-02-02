@@ -6,8 +6,23 @@ public class GameManager
 
     public static readonly List<Game> Games = new();
 
-    public static event Func<Session, string, bool, Game, Task> OnStartEventReceived =
+    public static event Func<Session, string, bool, Game, Task> StartEventReceived =
         (_, _, _, _) => Task.CompletedTask;
+
+    public static event Func<Task> PingEventReceived = () => Task.CompletedTask;
+
+    static GameManager()
+    {
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                Thread.Sleep(1000 * 10);
+
+                await PingEventReceived();
+            }
+        });
+    }
 
     public static void Enqueue(Session session)
     {
@@ -25,8 +40,8 @@ public class GameManager
         Game game = new(sessions);
         Games.Add(game);
 
-        await OnStartEventReceived(sessions[0], sessions[1].NickName, true, game);
-        await OnStartEventReceived(sessions[1], sessions[0].NickName, false, game);
+        await StartEventReceived(sessions[0], sessions[1].NickName, true, game);
+        await StartEventReceived(sessions[1], sessions[0].NickName, false, game);
 
         TotalPlayCountController.AddPlayCount();
     }
@@ -40,6 +55,18 @@ public class GameManager
     {
         _gameQueue = new Queue<Session>(_gameQueue.Where(q => q.SessionId != session.SessionId));
     }
+
+    public static int GetPlayingGameCount()
+    {
+        FilterEndedGames();
+
+        return Games.Count;
+    }
+
+    public static void FilterEndedGames()
+    {
+        Games.ToList().ForEach(x => x.CheckIsAutoEnded().Wait());
+    }
 }
 
 public class Game
@@ -50,14 +77,18 @@ public class Game
 
     public int[][] Map { init; get; }
 
-    public static event Func<Session, string, Task> OnEndEventReceived = (_, _) => Task.CompletedTask;
-    public static event Func<Session, int, int[], Task> OnPlayEventReceived = (_, _, _) => Task.CompletedTask;
+    private DateTime StartTime { get; }
+
+    public static event Func<Session, string, Task> EndEventReceived = (_, _) => Task.CompletedTask;
+    public static event Func<Session, int, int[], Task> PlayEventReceived = (_, _, _) => Task.CompletedTask;
+    public static event Func<Session, string, Task> EmoteEventReceived = (_, _) => Task.CompletedTask;
 
     public Game(List<Session> players)
     {
         Players = players;
         Turn = 0;
         Map = Enumerable.Range(0, 3).Select(_ => new[] { -1, -1, -1 }).ToArray();
+        StartTime = DateTime.Now;
     }
 
     public bool IsMyTurn(Session session)
@@ -84,32 +115,32 @@ public class Game
 
     public async Task Play(Session session, int index)
     {
-        await OnPlayEventReceived(
-            Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0],
+        await PlayEventReceived(
+            GetOppositePlayer(session),
             index,
             Map.SelectMany(a => a).ToArray());
     }
 
-    public void CheckEnd()
+    public async Task CheckEnd()
     {
         if (CheckVertical(0) || CheckHorizontal(0) || CheckCross(0))
         {
-            OnEndEventReceived(Players[0], "WIN");
-            OnEndEventReceived(Players[1], "LOSE");
+            await EndEventReceived(Players[0], "WIN");
+            await EndEventReceived(Players[1], "LOSE");
 
             GameManager.Games.Remove(this);
         }
         else if (CheckVertical(1) || CheckHorizontal(1) || CheckCross(1))
         {
-            OnEndEventReceived(Players[1], "WIN");
-            OnEndEventReceived(Players[0], "LOSE");
+            await EndEventReceived(Players[1], "WIN");
+            await EndEventReceived(Players[0], "LOSE");
 
             GameManager.Games.Remove(this);
         }
         else if (!Map.Any(row => row.Any(col => col == -1)))
         {
-            OnEndEventReceived(Players[0], "DRAW");
-            OnEndEventReceived(Players[1], "DRAW");
+            await EndEventReceived(Players[0], "DRAW");
+            await EndEventReceived(Players[1], "DRAW");
 
             GameManager.Games.Remove(this);
         }
@@ -123,11 +154,35 @@ public class Game
                                        (Map[0][2] == player && Map[1][1] == player && Map[2][0] == player);
     }
 
-    public async Task LeaveGame(Session session)
+    public async Task CheckIsAutoEnded()
     {
-        await OnEndEventReceived(
-            Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0], "LEAVE");
+        if ((DateTime.Now - StartTime).TotalMinutes < 10)
+        {
+            return;
+        }
+
+        await EndEventReceived(Players[0], "DRAW");
+        await EndEventReceived(Players[1], "DRAW");
 
         GameManager.Games.Remove(this);
+    }
+
+    public async Task LeaveGame(Session session)
+    {
+        await EndEventReceived(
+            GetOppositePlayer(session), "LEAVE");
+
+        GameManager.Games.Remove(this);
+    }
+
+    public async Task Emote(Session session, string emoji)
+    {
+        await EmoteEventReceived(
+            GetOppositePlayer(session), emoji);
+    }
+
+    private Session GetOppositePlayer(Session session)
+    {
+        return Players.FindIndex(s => s.SessionId == session.SessionId) == 0 ? Players[1] : Players[0];
     }
 }
