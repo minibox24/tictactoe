@@ -177,7 +177,7 @@ public class GameSession
         State = SessionState.Idle;
     }
 
-    private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Game game)
+    private async Task OnStartEventReceived(Session session, string vs, bool isFirst, Game game, bool isBot)
     {
         if (session.SessionId != _session.SessionId)
         {
@@ -187,7 +187,7 @@ public class GameSession
         _game = game;
 
         await WebSocket.SendStringAsync(
-            JsonConvert.SerializeObject(new StartMessage { vs = vs, first = isFirst }));
+            JsonConvert.SerializeObject(new StartMessage { vs = vs, first = isFirst, isBot = isBot }));
 
         State = SessionState.Game;
     }
