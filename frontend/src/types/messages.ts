@@ -5,6 +5,10 @@ import {
   MessageTypes,
 } from "./enums";
 
+export interface PingMessage {
+  type: MessageTypes.PING;
+}
+
 export interface LoginMessage {
   type: MessageTypes.LOGIN;
   nick: string;
@@ -30,6 +34,15 @@ export interface EndMessage {
 export interface ErrorMessage {
   type: MessageTypes.ERROR;
   error: ErrorTypes;
+}
+
+export interface EmoteMessage {
+  type: MessageTypes.EMOTE | ClientMessageTypes.EMOTE;
+  emote: string;
+}
+
+export interface PongMessage {
+  type: ClientMessageTypes.PONG;
 }
 
 export interface QueueMessage {
