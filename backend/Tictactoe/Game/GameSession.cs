@@ -218,6 +218,8 @@ public class GameSession
         if (State != SessionState.Game)
         {
             await SendError("NOT_PLAYING");
+
+            return;
         }
 
         await _game!.Emote(_session, emoji);
