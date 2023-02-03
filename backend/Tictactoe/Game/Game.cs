@@ -151,7 +151,7 @@ public class Game
         {
             Random random = new();
 
-            Thread.Sleep(100 * random.Next(5, 30));
+            Thread.Sleep(1000);
 
             if (IsEnded)
             {
