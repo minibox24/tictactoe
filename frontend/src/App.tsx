@@ -118,6 +118,7 @@ const App: FC<AppProps> = () => {
       controls.set("default");
 
       const session: GameSession = {
+        isBot: data.isBot,
         vs: data.vs,
         isFirst: data.first,
         myTurn: data.first,
@@ -429,7 +430,11 @@ const App: FC<AppProps> = () => {
       </TestControler> */}
 
       {status === Status.Playing && gameSession && (
-        <VSText player1={nick} player2={gameSession.vs} />
+        <VSText
+          player1={nick}
+          player2={gameSession.vs}
+          isBot={gameSession.isBot}
+        />
       )}
 
       {status === Status.Playing && !gameSession?.isLeave && (
