@@ -94,6 +94,9 @@ const Emotes = styled.div`
 
 const Emote = styled.img`
   width: 50px;
+
+  cursor: pointer;
+  -webkit-user-drag: none;
 `;
 
 export default EmoteSelector;

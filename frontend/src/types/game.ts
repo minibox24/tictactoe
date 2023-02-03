@@ -7,4 +7,5 @@ export interface GameSession {
   board: (-1 | 0 | 1)[];
 
   endType: null | EndTypes;
+  isLeave: boolean;
 }

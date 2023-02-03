@@ -44,6 +44,7 @@ public class GameSession
         Game.PlayEventReceived += OnPlayEventReceived;
         Game.EndEventReceived += OnEndEventReceived;
         Game.EmoteEventReceived += OnEmoteEventReceived;
+        Game.LeaveEndedGameReceived += OnLeaveEndedGameReceived;
 
         if (WebSocket.State == WebSocketState.Open)
         {
@@ -76,7 +77,7 @@ public class GameSession
 
         if (State == SessionState.Game)
         {
-            await _game!.LeaveGame(_session);
+            await _game!.LeavePlayingGame(_session);
         }
 
         GameManager.StartEventReceived -= OnStartEventReceived;
@@ -84,6 +85,7 @@ public class GameSession
         Game.PlayEventReceived -= OnPlayEventReceived;
         Game.EndEventReceived -= OnEndEventReceived;
         Game.EmoteEventReceived -= OnEmoteEventReceived;
+        Game.LeaveEndedGameReceived -= OnLeaveEndedGameReceived;
     }
 
     private async Task HandleEvent(CoreMessage data, string rawStr)
@@ -130,11 +132,47 @@ public class GameSession
                 break;
             case "PONG":
                 break;
+            case "LEAVE":
+                await Leave();
+
+                break;
             default:
                 await SendError("INCORRECT_FORMAT");
 
                 break;
         }
+    }
+
+    private async Task Leave()
+    {
+        if (State != SessionState.Game)
+        {
+            await SendError("NOT_PLAYING");
+
+            return;
+        }
+
+        if (_game is null || !_game.IsEnded)
+        {
+            await SendError("ALREADY_PLAYING");
+
+            return;
+        }
+
+        await _game!.LeaveEndedGame(_session);
+        State = SessionState.Idle;
+    }
+
+    private async Task OnLeaveEndedGameReceived(Session session)
+    {
+        if (session.SessionId != _session.SessionId)
+        {
+            return;
+        }
+
+        State = SessionState.Idle;
+
+        await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new LeaveMessage()));
     }
 
     private async Task OnPingEventReceived()
@@ -194,7 +232,7 @@ public class GameSession
 
     private async Task Put(PutMessage msg)
     {
-        if (State != SessionState.Game)
+        if (State != SessionState.Game || _game!.IsEnded)
         {
             await SendError("NOT_PLAYING");
 
@@ -257,8 +295,6 @@ public class GameSession
 
         await WebSocket.SendStringAsync(JsonConvert.SerializeObject(new EndMessage
             { status = endType }));
-
-        State = SessionState.Idle;
     }
 
     private async Task OnEmoteEventReceived(Session session, string emoji)

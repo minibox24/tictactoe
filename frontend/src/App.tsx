@@ -2,6 +2,8 @@ import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
 import { FC, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import useWebSocket from "react-use-websocket";
 import ConnectingPage from "./components/ConnectingPage";
 import Emote from "./components/Emote";
@@ -14,11 +16,13 @@ import QueueingPage from "./components/QueueingPage";
 import VSText from "./components/VSText";
 import Wakpago from "./components/Wakpago";
 import { Avatars, ClientMessageTypes, MessageTypes } from "./types/enums";
+import Errors from "./types/errors";
 import { GameSession } from "./types/game";
 import {
   EmoteMessage,
   EndMessage,
   ErrorMessage,
+  LeaveMessage,
   LoginMessage,
   PingMessage,
   PlayMessage,
@@ -119,6 +123,7 @@ const App: FC<AppProps> = () => {
         myTurn: data.first,
         board: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
         endType: null,
+        isLeave: false,
       };
 
       if (session.myTurn) {
@@ -165,8 +170,36 @@ const App: FC<AppProps> = () => {
     [MessageTypes.EMOTE]: (data: EmoteMessage) => {
       addEmote(data.emoji, false);
     },
+    [MessageTypes.LEAVE]: (data: LeaveMessage) => {
+      toast.info("상대방이 게임을 떠났습니다.", {
+        position: "top-right",
+        autoClose: 10000,
+        hideProgressBar: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+
+      setGameSession((prev: GameSession | null) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          isLeave: true,
+        };
+      });
+    },
     [MessageTypes.ERROR]: (data: ErrorMessage) => {
-      console.error(data.error);
+      const errorMessage = Errors[data.error];
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 10000,
+        hideProgressBar: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
     },
   };
 
@@ -221,7 +254,15 @@ const App: FC<AppProps> = () => {
     reGame();
   };
 
-  const reGame = () => {
+  const reGame = (sendLeave: boolean = false) => {
+    if (sendLeave && !gameSession?.isLeave) {
+      const payload: LeaveMessage = {
+        type: ClientMessageTypes.LEAVE,
+      };
+
+      sendMessage(JSON.stringify(payload));
+    }
+
     controls.set("hidden");
     controls.set("default");
 
@@ -257,7 +298,7 @@ const App: FC<AppProps> = () => {
 
         return prev;
       });
-    }, 1400);
+    }, 3000);
   };
 
   const selectEmote = (emote: string) => {
@@ -388,10 +429,11 @@ const App: FC<AppProps> = () => {
       </TestControler> */}
 
       {status === Status.Playing && gameSession && (
-        <>
-          <VSText player1={nick} player2={gameSession.vs} />
-          <EmoteSelector onSelect={selectEmote} />
-        </>
+        <VSText player1={nick} player2={gameSession.vs} />
+      )}
+
+      {status === Status.Playing && !gameSession?.isLeave && (
+        <EmoteSelector onSelect={selectEmote} />
       )}
 
       {getAvatar()}
@@ -399,7 +441,7 @@ const App: FC<AppProps> = () => {
       <MyturnText controls={controls} />
 
       {gameSession?.endType && (
-        <Gameover session={gameSession} reGame={reGame} />
+        <Gameover session={gameSession} reGame={() => reGame(true)} />
       )}
 
       {/* Pages */}
@@ -410,6 +452,7 @@ const App: FC<AppProps> = () => {
       )}
 
       <Emotes>{emotes}</Emotes>
+      <ToastContainer />
     </Container>
   );
 };
