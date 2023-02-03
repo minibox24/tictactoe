@@ -2,8 +2,12 @@ import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
 import { FC, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import useWebSocket from "react-use-websocket";
 import ConnectingPage from "./components/ConnectingPage";
+import Emote from "./components/Emote";
+import EmoteSelector from "./components/EmoteSelector";
 import Gameover from "./components/Gameover";
 import Ine from "./components/Ine";
 import LobbyPage from "./components/LobbyPage";
@@ -12,6 +16,7 @@ import QueueingPage from "./components/QueueingPage";
 import VSText from "./components/VSText";
 import Wakpago from "./components/Wakpago";
 import { Avatars, ClientMessageTypes, MessageTypes } from "./types/enums";
+import Errors from "./types/errors";
 import { GameSession } from "./types/game";
 import {
   EmoteMessage,
@@ -29,6 +34,7 @@ import {
 import { Status as StatusResponse } from "./types/responses";
 import { playSound } from "./utils/PlaySound";
 
+const SECURE = true;
 const HOST = "ttt.minibox.xyz";
 
 interface AppProps {}
@@ -53,29 +59,43 @@ const App: FC<AppProps> = () => {
   const [failed, setFailed] = useState<boolean>(false);
   const [statusInfo, setStatusInfo] = useState<StatusResponse | null>(null);
 
+  const [emotes, setEmotes] = useState<any[]>([]);
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
 
-  const { sendMessage } = useWebSocket(`wss://${HOST}/ws`, {
-    onClose: () => {
-      setFailed(true);
-      setStatus(Status.Connecting);
-    },
+  const { sendMessage } = useWebSocket(
+    `${SECURE ? "wss" : "ws"}://${HOST}/ws`,
+    {
+      onClose: () => {
+        reGame();
+        setFailed(true);
+        setStatus(Status.Connecting);
+      },
 
-    shouldReconnect: () => true,
-    onMessage: (event: MessageEvent) => {
-      const data = JSON.parse(event.data);
-      const type = data.type as MessageTypes;
+      shouldReconnect: () => true,
 
-      if (type in callback) {
-        callback[type](data);
-      }
-    },
-  });
+      // TODO: 더 나은 전체 리렌더 방법 찾기
+      filter: (event: MessageEvent) => {
+        const data = JSON.parse(event.data);
+        const type = data.type as MessageTypes;
+        if (type in callback) {
+          callback[type](data);
+        }
+
+        if (type === MessageTypes.PING) {
+          return false;
+        }
+
+        return true;
+      },
+    }
+  );
 
   const callback = {
     [MessageTypes.LOGIN]: async (data: LoginMessage) => {
       try {
-        const response = await fetch(`https://${HOST}/status`);
+        const response = await fetch(
+          `${SECURE ? "https" : "http"}://${HOST}/status`
+        );
         const status: StatusResponse = await response.json();
 
         setNick(data.nick);
@@ -93,6 +113,9 @@ const App: FC<AppProps> = () => {
       sendMessage(JSON.stringify(payload));
     },
     [MessageTypes.START]: (data: StartMessage) => {
+      controls.set("hidden");
+      controls.set("default");
+
       const session: GameSession = {
         vs: data.vs,
         isFirst: data.first,
@@ -143,10 +166,19 @@ const App: FC<AppProps> = () => {
       });
     },
     [MessageTypes.EMOTE]: (data: EmoteMessage) => {
-      console.log(data.emote);
+      addEmote(data.emoji, false);
     },
     [MessageTypes.ERROR]: (data: ErrorMessage) => {
-      console.error(data.error);
+      const errorMessage = Errors[data.error];
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 10000,
+        hideProgressBar: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
     },
   };
 
@@ -189,14 +221,16 @@ const App: FC<AppProps> = () => {
     };
 
     (async () => {
-      const response = await fetch(`https://${HOST}/status`);
+      const response = await fetch(
+        `${SECURE ? "https" : "http"}://${HOST}/status`
+      );
       const status: StatusResponse = await response.json();
 
       setStatusInfo(status);
     })();
 
     sendMessage(JSON.stringify(payload));
-    setStatus(Status.Lobby);
+    reGame();
   };
 
   const reGame = () => {
@@ -206,7 +240,9 @@ const App: FC<AppProps> = () => {
     const avatarIndex = Math.floor(Math.random() * avatars.length);
 
     (async () => {
-      const response = await fetch(`https://${HOST}/status`);
+      const response = await fetch(
+        `${SECURE ? "https" : "http"}://${HOST}/status`
+      );
       const status: StatusResponse = await response.json();
 
       setStatusInfo(status);
@@ -215,6 +251,35 @@ const App: FC<AppProps> = () => {
     setGameSession(null);
     setAvatar(avatars[avatarIndex]);
     setStatus(Status.Lobby);
+  };
+
+  const addEmote = (emote: string, byMe: boolean) => {
+    const emoteElement = (
+      <Emote emote={emote} byMe={byMe} key={Math.random()} />
+    );
+
+    setEmotes((prev) => [...prev, emoteElement]);
+
+    setTimeout(() => {
+      setEmotes((prev) => {
+        const idx = prev.indexOf(emoteElement);
+        if (idx === -1) return prev;
+
+        prev.splice(idx, 1);
+
+        return prev;
+      });
+    }, 3000);
+  };
+
+  const selectEmote = (emote: string) => {
+    const payload: EmoteMessage = {
+      type: ClientMessageTypes.EMOTE,
+      emoji: emote,
+    };
+
+    sendMessage(JSON.stringify(payload));
+    addEmote(emote, true);
   };
 
   const getAvatar = () => {
@@ -335,7 +400,10 @@ const App: FC<AppProps> = () => {
       </TestControler> */}
 
       {status === Status.Playing && gameSession && (
-        <VSText player1={nick} player2={gameSession.vs} />
+        <>
+          <VSText player1={nick} player2={gameSession.vs} />
+          <EmoteSelector onSelect={selectEmote} />
+        </>
       )}
 
       {getAvatar()}
@@ -352,6 +420,9 @@ const App: FC<AppProps> = () => {
       {status === Status.Lobby && (
         <LobbyPage nick={nick} status={statusInfo} onQueued={onQueued} />
       )}
+
+      <Emotes>{emotes}</Emotes>
+      <ToastContainer />
     </Container>
   );
 };
@@ -368,5 +439,11 @@ const TestControler = styled.div`
 const TCRow = styled.div``;
 
 const Container = styled.div``;
+
+const Emotes = styled.div`
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+`;
 
 export default App;
