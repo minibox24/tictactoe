@@ -1,6 +1,8 @@
 import { EndTypes } from "./enums";
 
 export interface GameSession {
+  isBot: boolean;
+
   vs: string;
   isFirst: boolean;
   myTurn: boolean;

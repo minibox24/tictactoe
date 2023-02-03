@@ -4,15 +4,19 @@ import styled, { css } from "styled-components";
 interface VSTextProps {
   player1: string;
   player2: string;
+  isBot: boolean;
 }
 
-const VSText: FC<VSTextProps> = ({ player1, player2 }) => {
+const VSText: FC<VSTextProps> = ({ player1, player2, isBot }) => {
   return (
     <Container>
       <TextContainer>
         <Text>{player1} (나)</Text>
         <Text isVS>VS</Text>
-        <Text>{player2}</Text>
+        <Text>
+          {player2}
+          {isBot ? " (봇)" : ""}
+        </Text>
       </TextContainer>
     </Container>
   );

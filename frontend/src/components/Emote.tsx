@@ -3,10 +3,9 @@ import styled, { css } from "styled-components";
 
 interface EmoteProps {
   emote: string;
-  byMe: boolean;
 }
 
-const Emote: FC<EmoteProps> = ({ emote, byMe }) => {
+const Emote: FC<EmoteProps> = ({ emote }) => {
   const random = Math.floor(Math.random() * 4);
 
   return (

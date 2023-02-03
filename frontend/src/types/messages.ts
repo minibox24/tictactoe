@@ -18,6 +18,7 @@ export interface StartMessage {
   type: MessageTypes.START;
   vs: string;
   first: boolean;
+  isBot: boolean;
 }
 
 export interface PlayMessage {
