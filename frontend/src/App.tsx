@@ -22,6 +22,7 @@ import {
   EmoteMessage,
   EndMessage,
   ErrorMessage,
+  LeaveMessage,
   LoginMessage,
   PingMessage,
   PlayMessage,
@@ -122,6 +123,7 @@ const App: FC<AppProps> = () => {
         myTurn: data.first,
         board: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
         endType: null,
+        isLeave: false,
       };
 
       if (session.myTurn) {
@@ -167,6 +169,25 @@ const App: FC<AppProps> = () => {
     },
     [MessageTypes.EMOTE]: (data: EmoteMessage) => {
       addEmote(data.emoji, false);
+    },
+    [MessageTypes.LEAVE]: (data: LeaveMessage) => {
+      toast.info("상대방이 게임을 떠났습니다.", {
+        position: "top-right",
+        autoClose: 10000,
+        hideProgressBar: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+
+      setGameSession((prev: GameSession | null) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          isLeave: true,
+        };
+      });
     },
     [MessageTypes.ERROR]: (data: ErrorMessage) => {
       const errorMessage = Errors[data.error];
@@ -233,7 +254,15 @@ const App: FC<AppProps> = () => {
     reGame();
   };
 
-  const reGame = () => {
+  const reGame = (sendLeave: boolean = false) => {
+    if (sendLeave && !gameSession?.isLeave) {
+      const payload: LeaveMessage = {
+        type: ClientMessageTypes.LEAVE,
+      };
+
+      sendMessage(JSON.stringify(payload));
+    }
+
     controls.set("hidden");
     controls.set("default");
 
@@ -400,10 +429,11 @@ const App: FC<AppProps> = () => {
       </TestControler> */}
 
       {status === Status.Playing && gameSession && (
-        <>
-          <VSText player1={nick} player2={gameSession.vs} />
-          <EmoteSelector onSelect={selectEmote} />
-        </>
+        <VSText player1={nick} player2={gameSession.vs} />
+      )}
+
+      {status === Status.Playing && !gameSession?.isLeave && (
+        <EmoteSelector onSelect={selectEmote} />
       )}
 
       {getAvatar()}
@@ -411,7 +441,7 @@ const App: FC<AppProps> = () => {
       <MyturnText controls={controls} />
 
       {gameSession?.endType && (
-        <Gameover session={gameSession} reGame={reGame} />
+        <Gameover session={gameSession} reGame={() => reGame(true)} />
       )}
 
       {/* Pages */}
