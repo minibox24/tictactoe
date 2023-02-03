@@ -2,6 +2,8 @@ import { useAnimation } from "framer-motion";
 import styled from "styled-components";
 
 import { FC, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import useWebSocket from "react-use-websocket";
 import ConnectingPage from "./components/ConnectingPage";
 import Emote from "./components/Emote";
@@ -14,6 +16,7 @@ import QueueingPage from "./components/QueueingPage";
 import VSText from "./components/VSText";
 import Wakpago from "./components/Wakpago";
 import { Avatars, ClientMessageTypes, MessageTypes } from "./types/enums";
+import Errors from "./types/errors";
 import { GameSession } from "./types/game";
 import {
   EmoteMessage,
@@ -166,7 +169,16 @@ const App: FC<AppProps> = () => {
       addEmote(data.emoji, false);
     },
     [MessageTypes.ERROR]: (data: ErrorMessage) => {
-      console.error(data.error);
+      const errorMessage = Errors[data.error];
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 10000,
+        hideProgressBar: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
     },
   };
 
@@ -410,6 +422,7 @@ const App: FC<AppProps> = () => {
       )}
 
       <Emotes>{emotes}</Emotes>
+      <ToastContainer />
     </Container>
   );
 };
