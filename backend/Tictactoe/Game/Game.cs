@@ -116,7 +116,7 @@ public class Game
         await EndEventReceived(
             GetOppositePlayer(session), "LEAVE");
 
-        await LeaveEndedGame(GetOppositePlayer(session));
+        await LeaveEndedGame(session);
     }
 
     public async Task Emote(Session session, string emoji)
