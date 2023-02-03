@@ -33,7 +33,7 @@ public class GameManager
         {
             Thread.Sleep(1000 * 5);
 
-            if (_gameQueue.Count != 1 || (DateTime.Now - _gameQueue.First().enqueTime).TotalSeconds < 30)
+            if (_gameQueue.Count != 1 || (DateTime.Now - _gameQueue.First().enqueTime).TotalSeconds < 15)
             {
                 continue;
             }
