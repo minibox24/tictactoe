@@ -113,8 +113,11 @@ public class Game
 
     public async Task LeavePlayingGame(Session session)
     {
-        await EndEventReceived(
-            GetOppositePlayer(session), "LEAVE");
+        if (!IsEnded)
+        {
+            await EndEventReceived(
+                GetOppositePlayer(session), "LEAVE");
+        }
 
         await LeaveEndedGame(session);
     }
