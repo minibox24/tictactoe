@@ -37,6 +37,8 @@ import { playSound } from "./utils/PlaySound";
 
 const SECURE = true;
 const HOST = "ttt.minibox.xyz";
+// const SECURE = false;
+// const HOST = "localhost:5214";
 
 interface AppProps {}
 
@@ -60,6 +62,7 @@ const App: FC<AppProps> = () => {
   const [failed, setFailed] = useState<boolean>(false);
   const [statusInfo, setStatusInfo] = useState<StatusResponse | null>(null);
 
+  const [myEmotes, setMyEmotes] = useState<any[]>([]);
   const [emotes, setEmotes] = useState<any[]>([]);
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
 
@@ -278,20 +281,21 @@ const App: FC<AppProps> = () => {
       setStatusInfo(status);
     })();
 
+    setEmotes([]);
     setGameSession(null);
     setAvatar(avatars[avatarIndex]);
     setStatus(Status.Lobby);
   };
 
   const addEmote = (emote: string, byMe: boolean) => {
-    const emoteElement = (
-      <Emote emote={emote} byMe={byMe} key={Math.random()} />
-    );
+    const emoteElement = <Emote emote={emote} key={Math.random()} />;
 
-    setEmotes((prev) => [...prev, emoteElement]);
+    const se = byMe ? setMyEmotes : setEmotes;
+
+    se((prev) => [...prev, emoteElement]);
 
     setTimeout(() => {
-      setEmotes((prev) => {
+      se((prev) => {
         const idx = prev.indexOf(emoteElement);
         if (idx === -1) return prev;
 
@@ -456,6 +460,7 @@ const App: FC<AppProps> = () => {
         <LobbyPage nick={nick} status={statusInfo} onQueued={onQueued} />
       )}
 
+      <MyEmotes>{myEmotes}</MyEmotes>
       <Emotes>{emotes}</Emotes>
       <ToastContainer />
     </Container>
@@ -475,10 +480,16 @@ const TCRow = styled.div``;
 
 const Container = styled.div``;
 
+const MyEmotes = styled.div`
+  position: fixed;
+  bottom: 30px;
+  left: 33%;
+`;
+
 const Emotes = styled.div`
   position: fixed;
   bottom: 30px;
-  left: 50%;
+  left: 66%;
 `;
 
 export default App;
