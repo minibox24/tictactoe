@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import styled from "styled-components";
 import { EndTypes } from "../types/enums";
 import { GameSession } from "../types/game";
@@ -14,26 +14,28 @@ const Gameover: FC<GameoverProps> = ({ session, reGame }) => {
   if (!session) return null;
   if (!session.endType) return null;
 
-  switch (session.endType) {
-    case EndTypes.WIN:
-      playSound("/static/sounds/Win.mp3");
-      break;
-    case EndTypes.LOSE:
-      playSound("/static/sounds/Lose.mp3");
-      break;
-    case EndTypes.DRAW:
-      playSound("/static/sounds/Draw.mp3");
-      break;
-    case EndTypes.LEAVE:
-      playSound("/static/sounds/Draw.mp3");
-  }
-
   const text = {
     [EndTypes.WIN]: "승리했습니다!",
     [EndTypes.LOSE]: "패배했습니다!",
     [EndTypes.DRAW]: "비겼습니다!",
     [EndTypes.LEAVE]: "상대방이 게임에서 탈주했습니다!",
   }[session.endType];
+
+  useEffect(() => {
+    switch (session.endType) {
+      case EndTypes.WIN:
+        playSound("/static/sounds/Win.mp3");
+        break;
+      case EndTypes.LOSE:
+        playSound("/static/sounds/Lose.mp3");
+        break;
+      case EndTypes.DRAW:
+        playSound("/static/sounds/Draw.mp3");
+        break;
+      case EndTypes.LEAVE:
+        playSound("/static/sounds/Draw.mp3");
+    }
+  }, []);
 
   return (
     <Container>

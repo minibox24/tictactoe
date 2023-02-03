@@ -41,6 +41,10 @@ export interface EmoteMessage {
   emoji: string;
 }
 
+export interface LeaveMessage {
+  type: MessageTypes.LEAVE | ClientMessageTypes.LEAVE;
+}
+
 export interface PongMessage {
   type: ClientMessageTypes.PONG;
 }

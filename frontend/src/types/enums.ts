@@ -5,6 +5,7 @@ export enum MessageTypes {
   PLAY = "PLAY",
   END = "END",
   EMOTE = "EMOTE",
+  LEAVE = "LEAVE",
   ERROR = "ERROR",
 }
 
@@ -14,6 +15,7 @@ export enum ClientMessageTypes {
   UNQUEUE = "UNQUEUE",
   PUT = "PUT",
   EMOTE = "EMOTE",
+  LEAVE = "LEAVE",
 }
 
 export enum EndTypes {
