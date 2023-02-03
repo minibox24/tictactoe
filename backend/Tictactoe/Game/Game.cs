@@ -159,6 +159,8 @@ public class Game
             }
 
             await Put(session, availableIndexes[random.Next(availableIndexes.Count)]);
+
+            await CheckEnd();
         })!);
 
         return Task.CompletedTask;
