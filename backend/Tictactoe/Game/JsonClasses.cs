@@ -60,6 +60,11 @@ public class JsonClasses
         public string? emoji;
     }
 
+    public class LeaveMessage
+    {
+        public string type = "LEAVE";
+    }
+
     public class Status
     {
         public int now;

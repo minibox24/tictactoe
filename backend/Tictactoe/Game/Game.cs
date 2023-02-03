@@ -10,11 +10,12 @@ public class Game
 
     private DateTime StartTime { get; }
 
-    private bool _isEnded;
+    public bool IsEnded;
 
     public static event Func<Session, string, Task> EndEventReceived = (_, _) => Task.CompletedTask;
     public static event Func<Session, int, int[], Task> PlayEventReceived = (_, _, _) => Task.CompletedTask;
     public static event Func<Session, string, Task> EmoteEventReceived = (_, _) => Task.CompletedTask;
+    public static event Func<Session, Task> LeaveEndedGameReceived = (_) => Task.CompletedTask;
 
     public Game(List<Session> players)
     {
@@ -22,7 +23,7 @@ public class Game
         Turn = 0;
         Map = Enumerable.Range(0, 3).Select(_ => new[] { -1, -1, -1 }).ToArray();
         StartTime = DateTime.Now;
-        _isEnded = false;
+        IsEnded = false;
 
         if (players.Count == 1)
         {
@@ -70,21 +71,21 @@ public class Game
             await EndEventReceived(Players[0], "WIN");
             await EndEventReceived(Players[1], "LOSE");
 
-            GameManager.Games.Remove(this);
+            IsEnded = true;
         }
         else if (CheckVertical(1) || CheckHorizontal(1) || CheckCross(1))
         {
             await EndEventReceived(Players[1], "WIN");
             await EndEventReceived(Players[0], "LOSE");
 
-            GameManager.Games.Remove(this);
+            IsEnded = true;
         }
         else if (!Map.Any(row => row.Any(col => col == -1)))
         {
             await EndEventReceived(Players[0], "DRAW");
             await EndEventReceived(Players[1], "DRAW");
 
-            GameManager.Games.Remove(this);
+            IsEnded = true;
         }
 
         bool CheckVertical(int player) => Enumerable.Range(0, 3).Any(y => Map[y].All(x => x == player));
@@ -106,15 +107,16 @@ public class Game
         await EndEventReceived(Players[0], "DRAW");
         await EndEventReceived(Players[1], "DRAW");
 
-        GameManager.Games.Remove(this);
+        await LeaveEndedGame(Players[0]);
+        await LeaveEndedGame(Players[1]);
     }
 
-    public async Task LeaveGame(Session session)
+    public async Task LeavePlayingGame(Session session)
     {
         await EndEventReceived(
             GetOppositePlayer(session), "LEAVE");
 
-        GameManager.Games.Remove(this);
+        await LeaveEndedGame(GetOppositePlayer(session));
     }
 
     public async Task Emote(Session session, string emoji)
@@ -148,7 +150,7 @@ public class Game
 
             Thread.Sleep(100 * random.Next(5, 30));
 
-            if (_isEnded)
+            if (IsEnded)
             {
                 return;
             }
@@ -166,11 +168,19 @@ public class Game
             return;
         }
 
-        _isEnded = true;
-
         PlayEventReceived -= OnPlayEventReceived;
         EndEventReceived -= OnEndEventReceived;
 
         await Task.CompletedTask;
+    }
+
+    public async Task LeaveEndedGame(Session session)
+    {
+        if (GameManager.Games.Contains(this))
+        {
+            GameManager.Games.Remove(this);
+        }
+
+        await LeaveEndedGameReceived(GetOppositePlayer(session));
     }
 }
