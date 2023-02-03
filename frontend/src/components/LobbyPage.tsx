@@ -27,11 +27,13 @@ const LobbyPage: FC<LobbyPageProps> = ({ onQueued, status, nick }) => {
       </Center>
 
       <Footer>
+        <FooterA href="https://github.com/minibox24/tictactoe" target="_blank">
+          Github
+        </FooterA>
         <FooterText>
           지금 {status ? status.now * 2 : 0}명이 플레이 중
         </FooterText>
         <FooterText>총 {status ? status.total : 0}회 플레이 됨</FooterText>
-        <FooterText>메일단은 여기로: minibox724@gmail.com</FooterText>
       </Footer>
     </Container>
   );
@@ -111,6 +113,29 @@ const Footer = styled.div`
 
 const FooterText = styled.p`
   margin: 0;
+`;
+
+const FooterA = styled.a`
+  margin: 0;
+
+  color: white;
+  text-decoration: underline;
+
+  &:hover {
+    color: white;
+  }
+
+  &:active {
+    color: white;
+  }
+
+  &:visited {
+    color: white;
+  }
+
+  &:focus {
+    color: white;
+  }
 `;
 
 export default LobbyPage;
