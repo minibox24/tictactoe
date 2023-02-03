@@ -23,7 +23,7 @@ const Container = styled.div<{ random: number }>`
   z-index: 9999999;
 
   ${({ random }) => css`
-    animation: ${`emote${random}`} 1.4s cubic-bezier(0.25, 0.25, 0.75, 0.75);
+    animation: ${`emote${random}`} 3s cubic-bezier(0.25, 0.25, 0.75, 0.75);
   `}
 
   animation-fill-mode: forwards;

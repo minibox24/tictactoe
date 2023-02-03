@@ -257,7 +257,7 @@ const App: FC<AppProps> = () => {
 
         return prev;
       });
-    }, 1400);
+    }, 3000);
   };
 
   const selectEmote = (emote: string) => {
